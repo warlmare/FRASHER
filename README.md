@@ -2,7 +2,59 @@
 
 This is a rework of FRASH (FRamework to test Algorithms of Similarity Hashing) as it was described in Breitinger et al. 
 [_FRASH: A framework to test algorithms of similarity hashing_](https://www.sciencedirect.com/science/article/pii/S1742287613000522). The framework allows the targeted manipulation of files 
-and the evlauation of algorithms through these. The Framework is implemented in Python 3.9. 
+and the evlauation of algorithms through these. The Framework is implemented in Python 3.9. For optimal performance `Ubuntu 21.04` is recommended, however the framework itself and the algorithms `Ssdeep` and `TLSH` are useable under Windows. 
+
+
+## Installation 
+
+On Linux run `Linux_MAKEFILE` which will install the following:
+- Packages 
+  - `build-essential` `libffi-dev` `python3` `python3-dev` `python3-pip` `automake` `autoconf` `libtool`
+- Python libraries
+  - `tqdm`, `tabulate`, `ssdeep`, `six`, `simhash`, `setuptools`, `regex`, `pytz`, `python-dateutil`, `py-tlsh`, `numpy`, 
+  `ntlk`, `joblib`, `click`
+
+
+On Windows run `Windows_MAKEFILE` which will install the following:
+ ```
+ 
+ ```
+## Using the Framework
+
+To start FRASH2.0 please run `python3 frash.py`. FRASH has the following options: 
+```
+$ python frash.py [-h] [-v] PATH
+```
+- `-h` prints usage instructions on the screen.
+- `-v` is the verbose mode and prints additional information during the testruns.
+- `PATH` is the path to the playbook that specifies all further information for the tests. 
+
+The FRASH playbooks are json files have the following syntax:
+
+```json
+{
+  "algorithm": {
+    "ssdeep",
+    "mrsh-cf"
+  },
+  "tests": {
+    "efficiency" : {
+      "filepath" : "/testfiles/file_a"
+    },
+    "single_common_block": {
+      "filepath1" : "/testfiles/file_a", 
+      "filepath2" : "/testfiles/file_b",
+      "blockfilepath" : "/testfiles/file_c"
+    },
+    "alignment": {
+    "path" : "/testfiles/alignment"
+    }
+  },
+  "rounds": 10
+}
+```
+For example see the `example_playbook.json`. Tests specified under `tests:` will be executed consecutively for every algorithm specified under `algorithm`.
+The results of the test `rounds` will be averaged, printed to the console and appended to the playbook. 
 
 ## Framework Structure
 The Folder Structure is similar to that of the  original FRASH.
@@ -38,7 +90,13 @@ The Folder Structure is similar to that of the  original FRASH.
   - Contains all Code for result representation, and analysis. 
 - **testers**
   - Contains all evaluation cases that present different challenges for the algorithms. The Superclass is `BasTest` in `base_test.py`.
-  - 
+
+### Testcases
+
+####Efficiency 
+Efficiency consists of three subtests:
+- **Runtime efficiency** measures the time, which the algorithm needs to process the input. Processing in this case means that we measure the time for reading the file from the device and generating the fingerprint.
+
 ## Algorithms
 Usable Algorithms are: 
 - `Ssdeep` (Python library)
@@ -86,6 +144,8 @@ This fork includes `fuzzy_64.dll` allowing ssdeep to run on 32 and 64 bit python
 2. In said folder run `python setup.py install`.
 
 #### TLSH
+
+#### Mrsh-Cf
 
 
 

@@ -5,7 +5,7 @@ import ssdeep
 import nltk
 import tlsh
 
-#nltk.download('punkt')
+# nltk.download('punkt')
 from simhash import Simhash
 import subprocess
 import re
@@ -44,7 +44,7 @@ class Algorithm:
         tokens = nltk.word_tokenize(string)
         return tokens
 
-    #TODO: so sorry, this needs to be purged.
+    # TODO: so sorry, this needs to be purged.
     def file_sizes(self, file):
         t5_file = file
         output = os.popen("wc -c {} ".format(t5_file)).read()
@@ -66,14 +66,25 @@ class TextAlgorithm:
         text = open(filepath).read()
         return text
 
-
     # TODO: implement SSDEEP connection
+
+
 class SSDEEP(Algorithm):
-   def compare_file_against_file(self, file_a, file_b):
+    def compare_file_against_file(self, file_a, file_b):
         hash1 = ssdeep.hash_from_file(file_a)
         hash2 = ssdeep.hash_from_file(file_b)
         score = ssdeep.compare(hash1, hash2)
         print(score)
+
+    def get_hash(self, filepath: str) -> str:
+        """
+        generates a hash from a file
+
+        :param filepath: path to the file that will be hashed
+        :return: hash as string
+        """
+        fuzzy_hash = ssdeep.hash_from_file(filepath)
+        return fuzzy_hash
 
 
 class TLSH(Algorithm):
@@ -131,10 +142,10 @@ class TLSH(Algorithm):
 
         # print(self.tlsh_output_cleaner_file_against_filter(line))
 
-    #TODO: the output must be changed since TLSH has a distnce score not a similarity score.
+    # TODO: the output must be changed since TLSH has a distnce score not a similarity score.
     def compare_file_against_file(self, file1, file2):
-        #file1_path = './t5/{}'.format(file1)
-        #file2_path = './t5/{}'.format(file2)
+        # file1_path = './t5/{}'.format(file1)
+        # file2_path = './t5/{}'.format(file2)
         data1 = tlsh.Tlsh()
         data2 = tlsh.Tlsh()
 
@@ -149,7 +160,7 @@ class TLSH(Algorithm):
             data2.final()
 
         score = data1.diff(data2)
-        #print('tlsh({}, {}): '.format(file1, file2) + str(score))
+        # print('tlsh({}, {}): '.format(file1, file2) + str(score))
         return score
 
 
@@ -260,7 +271,7 @@ class SimHash(TextAlgorithm):
 class MrshCf(Algorithm):
 
     def compare_t5_file_against_itself_console(self, file):
-        os.system("./ALGORITHMEN/mrsh_cuckoo.exe -f ./t5/{} -c ./t5/{}".format(file, file))
+        os.system("./mrsh-cf/mrsh_cuckoo.exe -f .{} -c .{}".format(file, file))
 
     # makes the output readable and adressable
     def output_cleaner(self, output_string):
@@ -334,4 +345,4 @@ if __name__ == '__main__':
     chunk_filePath = "../../testdata/test_file3"
 
     ssdeep_instance = SSDEEP()
-    ssdeep_instance.compare_file_against_file( filePath1, filePath2)
+    ssdeep_instance.compare_file_against_file(filePath1, filePath2)
