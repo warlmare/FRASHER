@@ -2,6 +2,7 @@ import math
 import time
 import os
 import itertools
+import importlib
 
 def gettimestring():
     '''gets the current time as %Y%m%d-%H%M%S string
@@ -34,6 +35,15 @@ def is_overlaping(a, b) -> bool:
         return True
     else:
         return False
+
+def get_algorithm(algorithm: str):
+    """creates a specific algorithm object.
+
+    :param algorithm: string name of the Algorithm as spelled as classname
+    :return: algorithm_obj
+    """
+    algorithm_obj = getattr(importlib.import_module("lib.hash_functions.algorithms"), algorithm)
+    return algorithm_obj
 
 def merge_overlapping_tuples(tuple_list) -> list:
     '''merges overlapping tuples in a list

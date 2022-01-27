@@ -2,7 +2,7 @@
 
 This is a rework of FRASH (FRamework to test Algorithms of Similarity Hashing) as it was described in Breitinger et al. 
 [_FRASH: A framework to test algorithms of similarity hashing_](https://www.sciencedirect.com/science/article/pii/S1742287613000522). The framework allows the targeted manipulation of files 
-and the evlauation of algorithms through these. The Framework is implemented in Python 3.9. For optimal performance `Ubuntu 21.04` is recommended, however the framework itself and the algorithms `Ssdeep` and `TLSH` are useable under Windows. 
+and the evaluation of algorithms through these. The Framework is implemented in Python 3.9. For optimal performance `Ubuntu 21.04` is recommended, however the framework itself and the algorithms `Ssdeep` and `TLSH` are useable under Windows. 
 
 
 ## Installation 

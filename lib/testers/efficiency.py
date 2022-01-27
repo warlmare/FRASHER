@@ -1,13 +1,13 @@
-from lib.hash_functions import algorithms
 from base_test import BaseTest
 from sys import getsizeof
 from lib.helpers import helper
-import importlib
+import timeit
+import tabulate
 
 
 class EfficienyTest(BaseTest):
 
-    def get_compression(self, algorithm, filepath) -> int:
+    def get_compression(self, algorithm:str, filepath) -> int:
         """Compression measures the ratio between input and output of
         an algorithm it is calculated in the following way:
 
@@ -17,8 +17,8 @@ class EfficienyTest(BaseTest):
         :param filepath: path to the file that will be hashed
         :return: compression
         """
-        instance = algorithm.
-        fuzzy_hash =
+        algorithm_instance = helper.get_algorithm(algorithm)
+        fuzzy_hash = algorithm_instance.get_hash(self, filepath)
         output_size = getsizeof(fuzzy_hash)
         input_size = helper.getfilesize(filepath)
         compression = (output_size / input_size)
@@ -32,6 +32,13 @@ class EfficienyTest(BaseTest):
         :param filepath: path to the file that will be hashed
         :return: floating point seconds
         """
+        algorithm_instance = helper.get_algorithm(algorithm)
+        fuzzy_hash = algorithm_instance.get_hash(self, filepath)
+        #execution of the hash comparison is timed 100 x times and averaged. Garbage collector is emptied prior.
+        elapsed_time = timeit.timeit(
+            lambda: algorithm_instance.compare_hash(self, fuzzy_hash, fuzzy_hash), number=100
+        )/100
+        return elapsed_time
 
     def get_runtime_efficiency(self, algorithm, filepath) -> float:
         """runtime is the time it takes the algorithm to generate
@@ -41,8 +48,32 @@ class EfficienyTest(BaseTest):
         :param filepath: path to the file that will be hashed
         :return: floating point seconds
         """
+        algorithm_instance = helper.get_algorithm(algorithm)
+        # execution of the hash generation is timed 10 x times and averaged. Garbage collector is emptied prior.
+        elapsed_time = timeit.timeit(
+            lambda: algorithm_instance.get_hash(self, filepath), number=10
+        ) / 10
+        return elapsed_time
+
+
+
+    def test(self, algorithm, testfile) -> list:
+        """ This test consists of a compression test, a reponse time test and a runtime efficiency test
+
+        :param algorithm:
+        :param testfile:
+        :return: list of arrays with compression_value, response_time, runtime_efficiency
+        """
+
+        compression = self.get_compression(algorithm, testfile)
+        response_time = self.get_response_time(algorithm, testfile)
+        runtime_efficiency = self.get_runtime_efficiency(algorithm, testfile)
+        testrun_tb = [["compression", "response_time", "runtime_efficiency"]]
+        testrun_tb.append([compression, response_time, runtime_efficiency])
+        return testrun_tb
 
 if __name__ == '__main__':
-    testfile1 = "../../testdata/test_file3"
+    testfile1 = "../../testdata/test_file4.pdf"
     instance = EfficienyTest()
-    print(instance.get_compression("SSDEEP", testfile1))
+    testrun = instance.test("SSDEEP", testfile1)
+    print(testrun)

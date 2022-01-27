@@ -10,6 +10,7 @@ from simhash import Simhash
 import subprocess
 import re
 import math
+import time
 
 
 # TODO: Function that pulls all the algorithms/ checks their conditions and their checkups
@@ -70,6 +71,7 @@ class TextAlgorithm:
 
 
 class SSDEEP(Algorithm):
+
     def compare_file_against_file(self, file_a, file_b):
         hash1 = ssdeep.hash_from_file(file_a)
         hash2 = ssdeep.hash_from_file(file_b)
@@ -86,8 +88,34 @@ class SSDEEP(Algorithm):
         fuzzy_hash = ssdeep.hash_from_file(filepath)
         return fuzzy_hash
 
+    def compare_hash(self, hash1: str, hash2: str) -> int:
+        """
+        compares two hash strings
+
+        :param hash1:
+        :param hash2:
+        :return: similarity score
+        """
+        score = ssdeep.compare(hash1, hash2)
+        return score
+
 
 class TLSH(Algorithm):
+    def get_hash(self, filepath: str) -> str:
+        """
+        generates a hash from a file
+
+        :param filepath: path to the file that will be hashed
+        :return: hash as string
+        """
+        fuzzy_hash = tlsh.Tlsh()
+        with open(filepath, 'rb') as f:
+            for buf in iter(lambda: f.read(512), b''):
+                fuzzy_hash.update(buf)
+            fuzzy_hash.final()
+
+        return fuzzy_hash
+
     def compare_t5_file_against_itself_console(self, file):
         file_path = './t5/{}'.format(file)
         data1 = tlsh.Tlsh()
