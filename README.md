@@ -21,7 +21,7 @@ On Windows run `Windows_MAKEFILE` which will install the following:
  ```
 ## Using the Framework
 
-To start FRASH2.0 please run `python3 frash.py`. FRASH has the following options: 
+To start FRASHER please run `python3 frash.py`. FRASHER has the following options: 
 ```
 $ python frash.py [-h] [-v] PATH
 ```
@@ -29,7 +29,7 @@ $ python frash.py [-h] [-v] PATH
 - `-v` is the verbose mode and prints additional information during the testruns.
 - `PATH` is the path to the playbook that specifies all further information for the tests. 
 
-The FRASH playbooks are json files have the following syntax:
+The FRASHER playbooks are json files have the following syntax:
 
 ```json
 {
