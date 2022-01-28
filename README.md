@@ -1,4 +1,4 @@
-# FRASH 2.0
+# FRASHER
 
 This is a rework of FRASH (FRamework to test Algorithms of Similarity Hashing) as it was described in Breitinger et al. 
 [_FRASH: A framework to test algorithms of similarity hashing_](https://www.sciencedirect.com/science/article/pii/S1742287613000522). The framework allows the targeted manipulation of files 

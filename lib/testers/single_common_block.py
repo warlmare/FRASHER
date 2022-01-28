@@ -21,8 +21,8 @@ class SingleCommonBlock(BaseTest):
         TODO: describe in detail how the files are beeing named (filesize, A or B, chunksize)
         '''
 
-        first_new_file_path = target_path + "/" + str(filesize) + "_first_file_" + str(chunksize)
-        second_new_file_path = target_path + "/" + str(filesize) + "_second_file_" + str(chunksize)
+        first_new_file_path = target_path + "/_first_file_" + str(chunksize)
+        second_new_file_path = target_path + "/_second_file_" + str(chunksize)
 
         # first_new_file and second_new_file are bytestreams of the files to be written to disk
         first_new_file, second_new_file = file_manipulation.common_block_insertion(filepath1, filepath2, chunkfile_path, chunksize)
@@ -96,23 +96,23 @@ class SingleCommonBlock(BaseTest):
 
 
 
-# if __name__ == '__main__':
-#
-#     testinstance = SingleCommonBlock()
-#
-#     #
-#     filePath1 = "../../testdata/2048/test_file1_2048"
-#     filePath2 = "../../testdata/2048/test_file2_2048"
-#     chunk_filePath = "../../testdata/test_file3"
-#
-#     algorithm = "tlsh"
-#
-#     testrun = testinstance.test(algorithm, filePath1, filePath2, chunk_filePath)
-#
-#     print(tabulate(testrun, headers="firstrow")) #TODO: this needs to be dealt with in a log class
-#
-#     # for every filesize there needs to be one single_common_block_correlation_test
-#     # TODO: needs to be realized for the filesizes = [512,2048,8192] for each filesize 5 runs and the values are averaged
+if __name__ == '__main__':
+
+    testinstance = SingleCommonBlock()
+
+    #
+    filePath1 = "../../testdata/2048/test_file1_2048"
+    filePath2 = "../../testdata/2048/test_file2_2048"
+    chunk_filePath = "../../testdata/test_file3"
+
+    algorithm = "tlsh"
+
+    testrun = testinstance.test(algorithm, filePath1, filePath2, chunk_filePath)
+
+    print(tabulate(testrun, headers="firstrow")) #TODO: this needs to be dealt with in a log class
+
+    # for every filesize there needs to be one single_common_block_correlation_test
+    # TODO: needs to be realized for the filesizes = [512,2048,8192] for each filesize 5 runs and the values are averaged
 
 
 

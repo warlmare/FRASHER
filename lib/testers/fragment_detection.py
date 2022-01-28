@@ -95,10 +95,6 @@ if __name__ == '__main__':
 
     testfile1 = "../../testdata/test_file3"
 
-
-    print(helper.getfilesize(testfile1))
-
-
     testrun = testinstance.test("tlsh", "random", testfile1,5)
     print(tabulate(testrun)) # TODO: this needs to be outsourced into a log module
 

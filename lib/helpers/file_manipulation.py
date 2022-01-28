@@ -86,14 +86,16 @@ def common_block_insertion(filePath1, filePath2, chunk_filePath, chunksize):
 
     :param filePath1:
     :param filePath2:
-    :param block: to be inserted
+    :param chunk_filePath: Path to file of which parts will be inserted
 
     :return: two new byte arrays with a shared common block
     '''
 
     chunk = getrandchunk(chunk_filePath, chunksize)
-    byt1 = overwrite_with_chunk(filePath1, chunk)
-    byt2 = overwrite_with_chunk(filePath2, chunk)
+
+    #the offsets that are passed here are not important in this method
+    byt1, offset1 = overwrite_with_chunk(filePath1, chunk)
+    byt2, offset2 = overwrite_with_chunk(filePath2, chunk)
 
     return byt1, byt2
 
@@ -280,6 +282,15 @@ def random_insertion(filepath:str, blocklength:int) -> bytes:
 
 
 
+if __name__ == '__main__':
 
+    filePath1 = "../../testdata/2048/test_file1_2048"
+    filePath2 = "../../testdata/2048/test_file2_2048"
+    chunk_filePath = "../../testdata/test_file3"
 
+    byt1 ,byt2 = common_block_insertion(filePath1, filePath2, chunk_filePath, 1600)
+
+    f1 = open("../../testdata/test1", "wb")
+    f1.write(byt1)
+    f1.close()
 
