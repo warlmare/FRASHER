@@ -21,6 +21,8 @@ On Windows run `Windows_MAKEFILE` which will install the following:
  ```
 ## Using the Framework
 
+![](/doc/Framework_overview.png)
+
 To start FRASH2.0 please run `python3 frash.py`. FRASH has the following options: 
 ```
 $ python frash.py [-h] [-v] PATH

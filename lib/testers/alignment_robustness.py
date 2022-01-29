@@ -84,8 +84,8 @@ class AlignmentRobustnessTest(BaseTest):
         else:
             print("algorithm not yet implemented")
 
-# if __name__ == '__main__':
-#     testinstance = AlignmentRobustnessTest()
-#     testfile = "../../testdata/test_file3"
-#     testrun = testinstance.test("tlsh", "fixed", testfile, 64000, 5000)
-#     print(tabulate(testrun))
+if __name__ == '__main__':
+    testinstance = AlignmentRobustnessTest()
+    testfile = "../../testdata/test_file3"
+    testrun = testinstance.test("tlsh", "fixed", testfile, 64000, 5000)
+    print(tabulate(testrun))
