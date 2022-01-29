@@ -21,7 +21,7 @@ On Windows run `Windows_MAKEFILE` which will install the following:
  ```
 ## Using the Framework
 
-![](/doc/Framework_overview.png)
+
 
 To start FRASH2.0 please run `python3 frash.py`. FRASH has the following options: 
 ```
@@ -59,6 +59,10 @@ For example see the `example_playbook.json`. Tests specified under `tests:` will
 The results of the test `rounds` will be averaged, printed to the console and appended to the playbook. 
 
 ## Framework Structure
+
+![](/doc/Framework_overview.svg)
+
+
 The Folder Structure is similar to that of the  original FRASH.
 
 ```
