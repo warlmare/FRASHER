@@ -60,7 +60,7 @@ The results of the test `rounds` will be averaged, printed to the console and ap
 
 ## Framework Structure
 
-![](/doc/Framework_overview.svg)
+![](/doc/Framework_overview.png)
 
 The Folder Structure is similar to that of the  original FRASH.
 
