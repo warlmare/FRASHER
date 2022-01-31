@@ -63,9 +63,9 @@ class RandomNoiseResistanceTest(BaseTest):
             f = open(new_file_path, "wb")
             f.write(new_file_byt)
             f.close()
-            print(change_log)
 
-        return new_file_path
+
+        return new_file_path, change_log
 
 
     # TODO: change factor omits how much of the original file is still there we need tracking for that.
@@ -85,8 +85,12 @@ class RandomNoiseResistanceTest(BaseTest):
         change_ctr = 10
         testrun_tb = [["changes","similarity score", "change factor"]]
         filesize = helper.getfilesize(filepath)
-        testfile = self.create_testdata(filepath, testfolderpath, 5000)
-
+        log = [filesize,[],[]]
+        
+        testfile, changelog = self.create_testdata(filepath, testfolderpath, 5000)
+        curr_log = self.manipulation_log_update(changelog, log)
+        
+        
         if algorithm == "tlsh":
             testrun_tb = [["changes", "tlsh distance score", "change factor"]]
             instance = algorithms.TLSH()
@@ -98,14 +102,21 @@ class RandomNoiseResistanceTest(BaseTest):
             while score < 300:
 
                 change_ctr += 10
-                testfile = self.create_testdata(testfile, testfile, 5000)
+                testfile, changelog = self.create_testdata(testfile, testfile, 5000)
+                curr_log = self.manipulation_log_update(changelog, curr_log)
+                file_state = self.get_log_arr(curr_log)
+                print(self.get_log_scale(file_state))
+
                 score = instance.compare_file_against_file(filepath, testfile)
                 resistance_score = ((change_ctr * 500) / filesize) * 100
                 testrun_tb.append([change_ctr, score, resistance_score])
 
-            else:
 
+            else:
                 print("file can no longer be matched")
+
+            file_state = self.get_log_arr(curr_log)
+            print(self.get_log_scale(file_state))
             return testrun_tb
         else:
             print("Algorithm not yet supported")

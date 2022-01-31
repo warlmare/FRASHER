@@ -22,6 +22,14 @@ def getfilesize(filepath):
     filesize = os.stat(filepath).st_size
     return filesize
 
+def get_algorithm(algorithm: str):
+    """creates a specific algorithm object.
+
+    :param algorithm: string name of the Algorithm as spelled as classname
+    :return: algorithm_obj
+    """
+    algorithm_obj = getattr(importlib.import_module("lib.hash_functions.algorithms"), algorithm)
+    return algorithm_obj
 
 def is_overlaping(a, b) -> bool:
     '''helper function
@@ -36,16 +44,7 @@ def is_overlaping(a, b) -> bool:
     else:
         return False
 
-def get_algorithm(algorithm: str):
-    """creates a specific algorithm object.
-
-    :param algorithm: string name of the Algorithm as spelled as classname
-    :return: algorithm_obj
-    """
-    algorithm_obj = getattr(importlib.import_module("lib.hash_functions.algorithms"), algorithm)
-    return algorithm_obj
-
-def merge_overlapping_tuples(tuple_list) -> list:
+def merge_overlapping_tuples_2(tuple_list) -> list:
     '''merges overlapping tuples in a list
 
     Exp: [[1,3], [2,6], [8,10]] -> [[1, 6], [8, 10]]
@@ -67,6 +66,19 @@ def merge_overlapping_tuples(tuple_list) -> list:
             merged_list.append(pop_element)
             merged_list.append(tuple_list[i])
     return merged_list
+
+def merge_overlapping_tuples(tuple_list) -> list:
+
+    tuple_list.sort(key=lambda interval: interval[0])
+    merged = [tuple_list[0]]
+    for current in tuple_list:
+        previous = merged[-1]
+        if current[0] <= previous[1]:
+            previous[1] = max(previous[1], current[1])
+        else:
+            merged.append(current)
+
+    return merged
 
 def range_diff(r1, r2):
     s1, e1 = r1
@@ -94,6 +106,8 @@ def tuple_reindex(tpl_lst, single_tpl) -> list:
         # if the first element in the tuple is bigger than the index point ...
         if start > index:
             start -= length
+            if start < 0:
+                start = 0
             end -= length
             tpl_lst[index]=(start, end)
 

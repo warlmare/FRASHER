@@ -55,8 +55,6 @@ class EfficienyTest(BaseTest):
         ) / 10
         return elapsed_time
 
-
-
     def test(self, algorithm, testfile) -> list:
         """ This test consists of a compression test, a reponse time test and a runtime efficiency test
 
