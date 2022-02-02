@@ -5,7 +5,7 @@ import ssdeep
 import nltk
 import tlsh
 
-# nltk.download('punkt')
+nltk.download('punkt')
 from simhash import Simhash
 import subprocess
 import re
@@ -299,7 +299,7 @@ class SimHash(TextAlgorithm):
 class MrshCf(Algorithm):
 
     def compare_t5_file_against_itself_console(self, file):
-        os.system("./mrsh-cf/mrsh_cuckoo.exe -f .{} -c .{}".format(file, file))
+        os.system("./../mrsh-cf/mrsh_cuckoo.exe -f .{} -c .{}".format(file, file))
 
     # makes the output readable and adressable
     def output_cleaner(self, output_string):
@@ -316,8 +316,8 @@ class MrshCf(Algorithm):
         output = self.output_cleaner(output_raw)
         return output
 
-    def compare_t5file_against_t5file_tokenized(self, file1, file2):
-        output_raw = subprocess.getoutput("./ALGORITHMEN/mrsh_cuckoo.exe-f ./t5/{} -c ./t5/{}".format(file1, file2))
+    def compare_file_against_file_tokenized(self, file1, file2):
+        output_raw = subprocess.getoutput("./mrsh-cf/mrsh_cuckoo.exe -f {} -c {}".format(file1, file2))
         output = self.output_cleaner(output_raw)
         return output
 
@@ -374,3 +374,8 @@ if __name__ == '__main__':
 
     ssdeep_instance = SSDEEP()
     ssdeep_instance.compare_file_against_file(filePath1, filePath2)
+
+    mrshcf_instance = MrshCf()
+    results_1 = mrshcf_instance.compare_file_against_file_tokenized(filePath1, filePath1)
+
+    print(results_1)

@@ -214,3 +214,6 @@ if __name__ == '__main__':
     array_log_2 = instance.get_log_arr(log6_test)
     print(array_log_2)
     print(instance.get_log_scale(array_log_2))
+
+
+
