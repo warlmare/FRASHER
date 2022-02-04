@@ -3,10 +3,12 @@ from lib.helpers import file_manipulation
 from lib.helpers import helper
 from lib.hash_functions import algorithms
 from tabulate import tabulate
+import re
 
 class SingleCommonBlock(BaseTest):
 
-    def create_testdata(self, filepath1, filepath2, target_path, filesize, chunkfile_path, chunksize) -> str:
+
+    def create_testdata(self, filepath1, filepath2, target_path, chunkfile_path) -> str:
         ''' Takes two files and inserts a common block of size X and saves them on disk
 
         :param filepath1: path to file that will be inserted with a common block.
@@ -21,23 +23,40 @@ class SingleCommonBlock(BaseTest):
         TODO: describe in detail how the files are beeing named (filesize, A or B, chunksize)
         '''
 
-        first_new_file_path = target_path + "/_first_file_" + str(chunksize)
-        second_new_file_path = target_path + "/_second_file_" + str(chunksize)
+        # TODO: check if filesize of both files is equal
+        filesize = helper.getfilesize(filepath1)
+        chunksize = int(filesize / 2)
+        filepaths = []
 
-        # first_new_file and second_new_file are bytestreams of the files to be written to disk
-        first_new_file, second_new_file = file_manipulation.common_block_insertion(filepath1, filepath2, chunkfile_path, chunksize)
+        while chunksize > 0:
+            chunksize -= 16000
 
-        f1 = open(first_new_file_path, "wb")
-        f1.write(first_new_file)
-        f1.close()
+            first_new_file_path = target_path + "/_first_file_" + str(chunksize)
+            second_new_file_path = target_path + "/_second_file_" + str(chunksize)
 
-        f2 = open(second_new_file_path, "wb")
-        f2.write(second_new_file)
-        f2.close()
+            # first_new_file and second_new_file are bytestreams of the files to be written to disk
+            first_new_file, second_new_file = file_manipulation.common_block_insertion(
+                filepath1,
+                filepath2,
+                chunkfile_path,
+                chunksize
+            )
 
-        return first_new_file_path, second_new_file_path
 
-    def test(self, algorithm:str, filePath1:str, filePath2:str, chunkfile_path:str) -> list:
+            f1 = open(first_new_file_path, "wb")
+            f1.write(first_new_file)
+            f1.close()
+
+            f2 = open(second_new_file_path, "wb")
+            f2.write(second_new_file)
+            f2.close()
+
+            filepaths += [[first_new_file_path, second_new_file_path]]
+
+        return filepaths
+
+
+    def test(self, algorithms:list, filepath1:str, filepath2:str, chunkfile_path:str) -> list:
         '''realizes the single-common-block-correlation for a specific algorithm with three files that need to be
         "completely different" from one another.
 
@@ -50,49 +69,36 @@ class SingleCommonBlock(BaseTest):
                 filesize, fragment size, fragment size %, similarity score
         '''
 
-        # create instance of a test to create a testfolder TODO: this is rather messy and should be done through helpers
-        #testinstance2 = BaseTest()
-
-
-        testfoldername = "single_common_block_correlation_" + algorithm
+        testfoldername = "single_common_block_correlation"
         testfolderpath = self.create_testrun_folder(testfoldername)
         filesize = helper.getfilesize(filePath1)
 
-        #array where all the results of the testrun are saved TODO: pull into superclass
-        testrun_tb = [["filesize (bytes)", "fragment size (bytes)", "fragment size %", "similarity score"]]
+        # [[first_file_x,second_file_x],[first_file_y, first_file_y]...]
+        file_list = self.create_testdata(filepath1, filepath2, testfolderpath, chunkfile_path)
 
 
-        chunksize = int(filesize / 2)
-        filepath1, filepath2 = self.create_testdata(filePath1, filePath2, testfolderpath, filesize, chunkfile_path, chunksize)
+        results = []
 
+        for i in algorithms:
+            algorithm_instance = helper.get_algorithm(i)
 
-        if algorithm == "tlsh": # TODO: TLSH is momentarily hard-coded as it uses distance score, not similarity.
-            testrun_tb = [["filesize (bytes)", "fragment size (bytes)", "fragment size %", "tlsh distance score"]]
-            instance = algorithms.TLSH()
-            score = instance.compare_file_against_file(filepath1, filepath2)
-            while score < 300:  # TODO: research the best score threshold
+            # array that saves our results
+            testrun_tb = [["filesize (bytes)", "fragment size (bytes)", "fragment size %", i]]
 
-                # decrease chunksize by 16000 bytes
-                chunksize -= 16000
+            for elem in file_list: #[first_file_path, second_file_path]
+                first_file = elem[0]
+                second_file = elem[1]
+                score = algorithm_instance.compare_file_against_file(algorithm_instance, first_file, second_file)
 
+                #takes the suffix of the testfiles
+                chunksize = int(re.sub('.*?([0-9]*)$',r'\1',first_file))
+                fragmentsize_prc =  int((chunksize / filesize) * 100)
+                testrun_tb.append([filesize, chunksize, fragmentsize_prc, score])
 
-                if chunksize > 0:
-                    filepath1, filepath2 = self.create_testdata(filePath1, filePath2, testfolderpath, filesize,
-                                                                        chunkfile_path, chunksize)
-                    score = instance.compare_file_against_file(filepath1, filepath2)
-                    fragmentsize_prc = int((chunksize / filesize) * 100)
-                    testrun_tb.append([filesize, chunksize, fragmentsize_prc, score])
+        results += testrun_tb
 
-                else:
-                    print("chunksize has reached 0!")
-                    break
-            else:
-                print("files can no longer be matched by the algorithm")
+        return results
 
-            return testrun_tb
-
-        else:
-            print("algorithm not yet implmeneted") #TODO: do a clean exception if unknown algorithm is called.
 
 
 
@@ -100,22 +106,21 @@ if __name__ == '__main__':
 
     testinstance = SingleCommonBlock()
 
-    #
+
     filePath1 = "../../testdata/2048/test_file1_2048"
     filePath2 = "../../testdata/2048/test_file2_2048"
     chunk_filePath = "../../testdata/test_file3"
 
-    algorithm = "tlsh"
-
-    testrun = testinstance.test(algorithm, filePath1, filePath2, chunk_filePath)
-
-    print(tabulate(testrun, headers="firstrow")) #TODO: this needs to be dealt with in a log class
-
     # for every filesize there needs to be one single_common_block_correlation_test
     # TODO: needs to be realized for the filesizes = [512,2048,8192] for each filesize 5 runs and the values are averaged
 
+    testfoldername = "single_common_block_correlation_" + "algorithm"
+    testfolderpath = testinstance.create_testrun_folder(testfoldername)
+    filelist = testinstance.create_testdata(filePath1,filePath2,testfolderpath,chunk_filePath)
 
-
+    algorithms = ["TLSH"]
+    results = testinstance.test(algorithms, filePath1, filePath2, chunk_filePath)
+    print(tabulate(results, headers="firstrow"))
 
 
 

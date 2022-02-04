@@ -111,7 +111,6 @@ class RandomNoiseResistanceTest(BaseTest):
                 resistance_score = ((change_ctr * 500) / filesize) * 100
                 testrun_tb.append([change_ctr, score, resistance_score])
 
-
             else:
                 print("file can no longer be matched")
 

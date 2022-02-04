@@ -4,6 +4,7 @@ from lib.helpers import helper
 import timeit
 import tabulate
 
+import os
 
 class EfficienyTest(BaseTest):
 
@@ -17,9 +18,15 @@ class EfficienyTest(BaseTest):
         :param filepath: path to the file that will be hashed
         :return: compression
         """
+
         algorithm_instance = helper.get_algorithm(algorithm)
         fuzzy_hash = algorithm_instance.get_hash(self, filepath)
-        output_size = getsizeof(fuzzy_hash)
+
+        # some algorithms return no hashes but their hash size instead
+        if type(fuzzy_hash) is int:
+            output_size = fuzzy_hash
+        elif(type(fuzzy_hash) is str):
+            output_size = getsizeof(fuzzy_hash)
         input_size = helper.getfilesize(filepath)
         compression = (output_size / input_size)
         return compression
@@ -34,10 +41,18 @@ class EfficienyTest(BaseTest):
         """
         algorithm_instance = helper.get_algorithm(algorithm)
         fuzzy_hash = algorithm_instance.get_hash(self, filepath)
-        #execution of the hash comparison is timed 100 x times and averaged. Garbage collector is emptied prior.
-        elapsed_time = timeit.timeit(
-            lambda: algorithm_instance.compare_hash(self, fuzzy_hash, fuzzy_hash), number=100
-        )/100
+
+        # some algorithms return no hashes but their hash size instead
+        if type(fuzzy_hash) is int:
+            elapsed_time = timeit.timeit(
+                lambda: algorithm_instance.compare_hash(algorithm_instance, filepath), number=100
+            ) / 100
+        elif (type(fuzzy_hash) is str):
+            #execution of the hash comparison is timed 100 x times and averaged. Garbage collector is emptied prior.
+            elapsed_time = timeit.timeit(
+                lambda: algorithm_instance.compare_hash(self, fuzzy_hash, fuzzy_hash), number=100
+            )/100
+
         return elapsed_time
 
     def get_runtime_efficiency(self, algorithm, filepath) -> float:
@@ -75,3 +90,10 @@ if __name__ == '__main__':
     instance = EfficienyTest()
     testrun = instance.test("SSDEEP", testfile1)
     print(testrun)
+
+    mrsh_test = instance.test("MRSHCF", testfile1)
+    print(mrsh_test)
+
+
+
+

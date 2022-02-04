@@ -11,12 +11,13 @@ import subprocess
 import re
 import math
 import time
+from  lib.helpers import helper
 
 
 # TODO: Function that pulls all the algorithms/ checks their conditions and their checkups
 
-
 class Algorithm:
+
 
     # TODO: create a output_cleaner-method that cleans up the output of every algorithm
 
@@ -76,7 +77,7 @@ class SSDEEP(Algorithm):
         hash1 = ssdeep.hash_from_file(file_a)
         hash2 = ssdeep.hash_from_file(file_b)
         score = ssdeep.compare(hash1, hash2)
-        print(score)
+        return score
 
     def get_hash(self, filepath: str) -> str:
         """
@@ -172,8 +173,7 @@ class TLSH(Algorithm):
 
     # TODO: the output must be changed since TLSH has a distnce score not a similarity score.
     def compare_file_against_file(self, file1, file2):
-        # file1_path = './t5/{}'.format(file1)
-        # file2_path = './t5/{}'.format(file2)
+
         data1 = tlsh.Tlsh()
         data2 = tlsh.Tlsh()
 
@@ -188,7 +188,7 @@ class TLSH(Algorithm):
             data2.final()
 
         score = data1.diff(data2)
-        # print('tlsh({}, {}): '.format(file1, file2) + str(score))
+
         return score
 
 
@@ -296,13 +296,68 @@ class SimHash(TextAlgorithm):
         return list
 
 
-class MrshCf(Algorithm):
+class MRSHCF(Algorithm):
 
-    def compare_t5_file_against_itself_console(self, file):
-        os.system("./../mrsh-cf/mrsh_cuckoo.exe -f .{} -c .{}".format(file, file))
 
-    # makes the output readable and adressable
+    def compare_file_against_file(self, file1, file2) -> int:
+        '''compares two files and returns the similarity score (Chunks Detected / Total Chunks)
+
+        :param file1: filepath
+        :param file2: filepath
+        :return: sim_score (Chunks Detected / Total Chunks) * 100 -> pre-decimal points
+        '''
+
+        comparison_output = self.compare_file_against_file_tokenized(file1, file2)
+        chunks_total = comparison_output.get("total_chunks")
+        chunks_detected = comparison_output.get("chunks_detected")
+
+        #TODO: mrsh-cf might depend heavily depend on decimal places so change this to include decimal points
+        sim_score = int((int(chunks_detected) / int(chunks_total)) * 100)
+        return sim_score
+
+    def compare_file_against_file_console(self, file1, file2):
+        '''compares two files and returns the command line output
+
+        :param file1: filepath
+        :param file2: filepath
+        '''
+        os.system("./mrsh-cf/mrsh_cuckoo.exe -f {} -c {}".format(file1, file2))
+
+
+    def get_hash(self, filepath) -> float:
+        '''generates a hash from a file in a filter form
+        mrsh cannot return the hash in string form but returns the size of the hash / filter
+
+        :param filepath:
+        :return: filter size in bytes
+        '''
+        # TODO: this needs to be set for the whole file
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
+        os.system("./mrsh-cf/mrsh_cuckoo.exe -f {} -g".format(filepath))
+        hash_size = helper.getfilesize("./mrsh-cf/mrsh.sig")
+        return hash_size
+
+    def compare_hash(self, filepath):
+        '''
+        compares a hash against a hash
+        since mrsh-cf gives no access to its methods we compare a file with itself
+
+        :param filepath:
+        '''
+        #TODO: output needs to be surpressed in some form
+        placeholder = self.compare_file_against_file_console(self, filepath, filepath)
+
+    # deprecated
     def output_cleaner(self, output_string):
+        # The mrshcf output follows the following format when compar a file against itself:  Filter Generation time is1.61256e+09 seconds . ./t5/000012.pdf      Total Chunks: 54	 Chunks Detected: 54
+        output_format = ['inputfile',
+                         'Total', 'Chunks', 'Doublepoint', 'total_chunks', 'Chunks', "Detected", "Doublepoint",
+                         'chunks_detected']
+        output_tokenized = Algorithm.tokenizer(str(output_string))
+        output_clean = dict(zip(output_format, output_tokenized))
+        return output_clean
+
+    def output_cleaner_file_vs_file(self, output_string):
         # The mrshcf output follows the following format when compar a file against itself:  Filter Generation time is1.61256e+09 seconds . ./t5/000012.pdf      Total Chunks: 54	 Chunks Detected: 54
         output_format = ['Filter', 'Generation', 'Time', 'filtergenerationtime', 'Seconds', 'Point', 'inputfile',
                          'Total', 'Chunks', 'Doublepoint', 'total_chunks', 'Chunks', "Detected", "Doublepoint",
@@ -318,7 +373,7 @@ class MrshCf(Algorithm):
 
     def compare_file_against_file_tokenized(self, file1, file2):
         output_raw = subprocess.getoutput("./mrsh-cf/mrsh_cuckoo.exe -f {} -c {}".format(file1, file2))
-        output = self.output_cleaner(output_raw)
+        output = self.output_cleaner_file_vs_file(output_raw)
         return output
 
     # compares a file from the t5-filter against a filter of all t5 files
@@ -368,14 +423,19 @@ class MrshCf(Algorithm):
 
 
 if __name__ == '__main__':
-    filePath1 = "../../testdata/2048/test_file1_2048"
-    filePath2 = "../../testdata/2048/test_file2_2048"
+    filePath1 = "../../testdata/test_file5"
+    filePath2 = "../../testdata/test_file5_short"
     chunk_filePath = "../../testdata/test_file3"
 
     ssdeep_instance = SSDEEP()
     ssdeep_instance.compare_file_against_file(filePath1, filePath2)
 
-    mrshcf_instance = MrshCf()
-    results_1 = mrshcf_instance.compare_file_against_file_tokenized(filePath1, filePath1)
+    mrshcf_instance = MRSHCF()
+    result = mrshcf_instance.compare_file_against_file(filePath1, filePath2)
+    print(result)
 
-    print(results_1)
+    print(mrshcf_instance.get_hash(filePath1))
+
+    print(mrshcf_instance.compare_file_against_file_console(filePath1, filePath2))
+
+
