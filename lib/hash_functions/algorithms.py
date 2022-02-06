@@ -106,7 +106,7 @@ class SSDEEP(Algorithm):
         '''fills a list with all the hashes of files from a folder
 
         :param folderpath: path to the folder with files
-        :return: list with hashes
+        :return: dictionary with filename:hash pairs
         '''
 
         hash_filter = {}
@@ -127,12 +127,12 @@ class SSDEEP(Algorithm):
         return hash_filter
 
     def compare_file_against_filter(self, filter:dict, filepath) ->dict:
-        '''compares a file -> hash with every hash in a filter
-        in O(1).
+        '''compares a single hash with every hash in a filter
+        in O(1). (iteratively)
 
         :param filter: list [[filename, hash], [..., ...], ... ]
         :param filepath:
-        :return: sorted list with the highest score first [[filename, score]]
+        :return: dictionary with filename:score pairs.
         '''
 
         file_hash = self.get_hash(filepath)
