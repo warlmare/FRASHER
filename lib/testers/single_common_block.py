@@ -5,6 +5,9 @@ from lib.hash_functions import algorithms
 from tabulate import tabulate
 import re
 
+import pandas as pd
+from functools import reduce
+
 class SingleCommonBlock(BaseTest):
 
 
@@ -77,7 +80,7 @@ class SingleCommonBlock(BaseTest):
         file_list = self.create_testdata(filepath1, filepath2, testfolderpath, chunkfile_path)
 
 
-        results = []
+        df_list = []
 
         for i in algorithms:
             algorithm_instance = helper.get_algorithm(i)
@@ -88,18 +91,28 @@ class SingleCommonBlock(BaseTest):
             for elem in file_list: #[first_file_path, second_file_path]
                 first_file = elem[0]
                 second_file = elem[1]
-                score = algorithm_instance.compare_file_against_file(algorithm_instance, first_file, second_file)
+
+                scores = []
+                # test are performed 5 times and averaged
+                for x in range(5):
+                    scores += [algorithm_instance.compare_file_against_file(algorithm_instance,
+                                                                            first_file,
+                                                                            second_file)]
+                score = sum(scores) / len(scores)
+
 
                 #takes the suffix of the testfiles
                 chunksize = int(re.sub('.*?([0-9]*)$',r'\1',first_file))
                 fragmentsize_prc =  int((chunksize / filesize) * 100)
                 testrun_tb.append([filesize, chunksize, fragmentsize_prc, score])
 
-        results += testrun_tb
+            res_df = helper.get_dataframe(testrun_tb)
+            df_list += [res_df]
 
+        results = reduce(lambda left, right: pd.merge(left, right, on=['filesize (bytes)',
+                                                                       "fragment size (bytes)",
+                                                                       "fragment size %"]), df_list)
         return results
-
-
 
 
 if __name__ == '__main__':
@@ -114,16 +127,9 @@ if __name__ == '__main__':
     # for every filesize there needs to be one single_common_block_correlation_test
     # TODO: needs to be realized for the filesizes = [512,2048,8192] for each filesize 5 runs and the values are averaged
 
-    testfoldername = "single_common_block_correlation_" + "algorithm"
-    testfolderpath = testinstance.create_testrun_folder(testfoldername)
-    filelist = testinstance.create_testdata(filePath1,filePath2,testfolderpath,chunk_filePath)
-
-    algorithms = ["TLSH"]
+    algorithms = ["SSDEEP","TLSH", "MRSHCF"]
     results = testinstance.test(algorithms, filePath1, filePath2, chunk_filePath)
-    print(tabulate(results, headers="firstrow"))
-
-
-
+    print(tabulate(results, headers='keys', tablefmt='psql'))
 
 
 

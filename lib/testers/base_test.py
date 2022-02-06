@@ -1,7 +1,10 @@
 import os
+
+import pandas as pd
+
 from lib.helpers import helper
 from lib.hash_functions import algorithms
-
+import tabulate
 
 class BaseTest:
 
@@ -39,7 +42,8 @@ class BaseTest:
         except OSError:
             print("Creation of the directory %s failed" % path)
         else:
-            print("Successfully created the directory %s " % path)
+            pass
+            #print("Successfully created the directory %s " % path)
 
         return path
 
@@ -189,6 +193,8 @@ class BaseTest:
                     scaled_bar += (int(rescaled_size) * "▒")
 
         return scaled_bar #TODO: check if 100
+
+
 
 
 if __name__ == '__main__':

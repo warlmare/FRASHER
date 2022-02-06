@@ -224,9 +224,8 @@ def percentage_blocks_random_head(filepath, percentage):
 
     # combining the new first half and the old second half
     byt = first_half + second_half
-    f = open(filepath, "wb")
-    f.write(byt)
-    f.close()
+
+    return byt
 
 def fixed_blocks_random_head(filepath, blocklength):
     '''overrides the head of the file with specified amount of random bytes

@@ -12,6 +12,10 @@ import re
 import math
 import time
 from  lib.helpers import helper
+import os
+import errno
+import pathlib
+import pprint
 
 
 # TODO: Function that pulls all the algorithms/ checks their conditions and their checkups
@@ -68,8 +72,6 @@ class TextAlgorithm:
         text = open(filepath).read()
         return text
 
-    # TODO: implement SSDEEP connection
-
 
 class SSDEEP(Algorithm):
 
@@ -100,6 +102,47 @@ class SSDEEP(Algorithm):
         score = ssdeep.compare(hash1, hash2)
         return score
 
+    def get_filter(self, directory_path:str) -> dict:
+        '''fills a list with all the hashes of files from a folder
+
+        :param folderpath: path to the folder with files
+        :return: list with hashes
+        '''
+
+        hash_filter = {}
+
+        try:
+            os.path.isdir(directory_path)
+        except FileNotFoundError as error:
+            raise FileNotFoundError(
+                errno.ENOENT, os.strerror(errno.ENOENT), directory_path)
+        else:
+            for subdir, dirs, files in os.walk(directory_path):
+                for file in files:
+                    filename = os.fsdecode(file)
+                    filepath = os.path.join(directory_path, file)
+                    hash = self.get_hash(filepath)
+                    hash_filter[filename] = hash
+
+        return hash_filter
+
+    def compare_file_against_filter(self, filter:dict, filepath) ->dict:
+        '''compares a file -> hash with every hash in a filter
+        in O(1).
+
+        :param filter: list [[filename, hash], [..., ...], ... ]
+        :param filepath:
+        :return: sorted list with the highest score first [[filename, score]]
+        '''
+
+        file_hash = self.get_hash(filepath)
+        results_list = {}
+
+        for filename, filter_hash in filter.items():
+            score = self.compare_hash(file_hash, filter_hash)
+            results_list[filename] = score
+
+        return results_list
 
 class TLSH(Algorithm):
     def get_hash(self, filepath: str) -> str:
@@ -147,6 +190,7 @@ class TLSH(Algorithm):
         output_clean = dict(zip(output_format, output_tokenized))
         return output_clean
 
+    # deprecated
     def compare_file_against_filter(self, file):
         # os.system("./Algorithms/tlsh/bin/tlsh -c t5/{} -l t5Filter ".format(file))
         t5_file = file
@@ -169,9 +213,7 @@ class TLSH(Algorithm):
 
         return thing
 
-        # print(self.tlsh_output_cleaner_file_against_filter(line))
 
-    # TODO: the output must be changed since TLSH has a distnce score not a similarity score.
     def compare_file_against_file(self, file1, file2):
 
         data1 = tlsh.Tlsh()
@@ -188,8 +230,13 @@ class TLSH(Algorithm):
             data2.final()
 
         score = data1.diff(data2)
+        if score > 300: #We consider 300 to be the cutoff value at which files can no longer be matched
+            result = 0
+        else:
+            #TLSH's score: the lower the more similar - we readjust that value on a scale from 0-100. 0 beeing 0 similarity
+            result = 100 - ((score * 1/300) * 100)
 
-        return score
+        return result
 
 
 class SiSe(Algorithm):
@@ -307,12 +354,12 @@ class MRSHCF(Algorithm):
         :return: sim_score (Chunks Detected / Total Chunks) * 100 -> pre-decimal points
         '''
 
-        comparison_output = self.compare_file_against_file_tokenized(file1, file2)
+        comparison_output = self.compare_file_against_file_tokenized(self, file1, file2)
         chunks_total = comparison_output.get("total_chunks")
         chunks_detected = comparison_output.get("chunks_detected")
 
         #TODO: mrsh-cf might depend heavily depend on decimal places so change this to include decimal points
-        sim_score = int((int(chunks_detected) / int(chunks_total)) * 100)
+        sim_score = (int(chunks_detected) / int(chunks_total)) * 100
         return sim_score
 
     def compare_file_against_file_console(self, file1, file2):
@@ -347,6 +394,12 @@ class MRSHCF(Algorithm):
         #TODO: output needs to be surpressed in some form
         placeholder = self.compare_file_against_file_console(self, filepath, filepath)
 
+    def compare_file_against_file_tokenized(self, file1, file2):
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
+        output_raw = subprocess.getoutput("./mrsh-cf/mrsh_cuckoo.exe -f {} -c {}".format(file1, file2))
+        output = self.output_cleaner_file_vs_file(self, output_raw)
+        return output
+
     # deprecated
     def output_cleaner(self, output_string):
         # The mrshcf output follows the following format when compar a file against itself:  Filter Generation time is1.61256e+09 seconds . ./t5/000012.pdf      Total Chunks: 54	 Chunks Detected: 54
@@ -371,10 +424,7 @@ class MRSHCF(Algorithm):
         output = self.output_cleaner(output_raw)
         return output
 
-    def compare_file_against_file_tokenized(self, file1, file2):
-        output_raw = subprocess.getoutput("./mrsh-cf/mrsh_cuckoo.exe -f {} -c {}".format(file1, file2))
-        output = self.output_cleaner_file_vs_file(output_raw)
-        return output
+
 
     # compares a file from the t5-filter against a filter of all t5 files
     def compare_t5_file_against_filter_console(self, file):
@@ -430,12 +480,11 @@ if __name__ == '__main__':
     ssdeep_instance = SSDEEP()
     ssdeep_instance.compare_file_against_file(filePath1, filePath2)
 
-    mrshcf_instance = MRSHCF()
-    result = mrshcf_instance.compare_file_against_file(filePath1, filePath2)
-    print(result)
+    filter  = ssdeep_instance.get_filter("../../testdata")
+    res  = ssdeep_instance.compare_file_against_filter(filter, filePath1)
+    pprint.pprint(res)
 
-    print(mrshcf_instance.get_hash(filePath1))
 
-    print(mrshcf_instance.compare_file_against_file_console(filePath1, filePath2))
+
 
 

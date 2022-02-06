@@ -4,6 +4,9 @@ import os
 import itertools
 import importlib
 
+import pandas as pd
+
+
 def gettimestring():
     '''gets the current time as %Y%m%d-%H%M%S string
 
@@ -307,6 +310,26 @@ def merge_adjacent_tuples(done, rest) -> list:
         done.append(y)
 
     return merge_adjacent_tuples(done, rest)
+
+def get_dataframe(list_of_lists:list) ->pd.DataFrame:
+    '''takes a list of lists and turns it into a dataframe
+
+    list of lists structure: [["column1","column2", ....],
+                              [value1, value2]]
+
+    first row is gonna be turned into the columns of the
+    dataframe.
+
+    :param list_of_lists:
+    :return:
+    '''
+
+    df = pd.DataFrame(list_of_lists[1:], columns=list_of_lists[0])
+    return df
+
+
+
+
 
 
 
