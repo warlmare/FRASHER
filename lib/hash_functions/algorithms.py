@@ -132,17 +132,17 @@ class SSDEEP(Algorithm):
 
         :param filter: list [[filename, hash], [..., ...], ... ]
         :param filepath:
-        :return: dictionary with filename:score pairs.
+        :return: dictionary with filename : score
         '''
 
-        file_hash = self.get_hash(filepath)
-        results_list = {}
+        file_hash = ssdeep.hash_from_file(filepath)
+        results = {}
 
         for filename, filter_hash in filter.items():
             score = self.compare_hash(file_hash, filter_hash)
-            results_list[filename] = score
+            results[filename] = score
 
-        return results_list
+        return results
 
 class TLSH(Algorithm):
     def get_hash(self, filepath: str) -> str:
@@ -354,7 +354,7 @@ class MRSHCF(Algorithm):
         :return: sim_score (Chunks Detected / Total Chunks) * 100 -> pre-decimal points
         '''
 
-        comparison_output = self.compare_file_against_file_tokenized(self, file1, file2)
+        comparison_output = self.compare_file_against_file_tokenized(file1, file2)
         chunks_total = comparison_output.get("total_chunks")
         chunks_detected = comparison_output.get("chunks_detected")
 
@@ -392,12 +392,12 @@ class MRSHCF(Algorithm):
         :param filepath:
         '''
         #TODO: output needs to be surpressed in some form
-        placeholder = self.compare_file_against_file_console(self, filepath, filepath)
+        placeholder = self.compare_file_against_file_console(filepath, filepath)
 
     def compare_file_against_file_tokenized(self, file1, file2):
         os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
         output_raw = subprocess.getoutput("./mrsh-cf/mrsh_cuckoo.exe -f {} -c {}".format(file1, file2))
-        output = self.output_cleaner_file_vs_file(self, output_raw)
+        output = self.output_cleaner_file_vs_file(output_raw)
         return output
 
     # deprecated

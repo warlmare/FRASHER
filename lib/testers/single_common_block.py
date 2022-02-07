@@ -63,7 +63,7 @@ class SingleCommonBlock(BaseTest):
         '''realizes the single-common-block-correlation for a specific algorithm with three files that need to be
         "completely different" from one another.
 
-        :param algorithm: the algorithm that should be tested (string)
+        :param algorithms: the algorithms that should be tested; list with strings.
         :param filePath1: the path of the first file that will be used for common block insertion
         :param filePath2: the path to the second file that will be used for common block insertion
         :param chunkfile_path: path to the file that will be inserted into the others
@@ -95,7 +95,7 @@ class SingleCommonBlock(BaseTest):
                 scores = []
                 # test are performed 5 times and averaged
                 for x in range(5):
-                    scores += [algorithm_instance.compare_file_against_file(algorithm_instance,
+                    scores += [algorithm_instance.compare_file_against_file(
                                                                             first_file,
                                                                             second_file)]
                 score = sum(scores) / len(scores)

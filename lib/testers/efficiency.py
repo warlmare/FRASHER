@@ -20,7 +20,7 @@ class EfficienyTest(BaseTest):
         """
 
         algorithm_instance = helper.get_algorithm(algorithm)
-        fuzzy_hash = algorithm_instance.get_hash(self, filepath)
+        fuzzy_hash = algorithm_instance.get_hash(filepath)
 
         # some algorithms return no hashes but their hash size instead
         if type(fuzzy_hash) is int:
@@ -40,17 +40,17 @@ class EfficienyTest(BaseTest):
         :return: floating point seconds
         """
         algorithm_instance = helper.get_algorithm(algorithm)
-        fuzzy_hash = algorithm_instance.get_hash(self, filepath)
+        fuzzy_hash = algorithm_instance.get_hash(filepath)
 
         # some algorithms return no hashes but their hash size instead
         if type(fuzzy_hash) is int:
             elapsed_time = timeit.timeit(
-                lambda: algorithm_instance.compare_hash(algorithm_instance, filepath), number=100
+                lambda: algorithm_instance.compare_hash(filepath), number=100
             ) / 100
         elif (type(fuzzy_hash) is str):
             #execution of the hash comparison is timed 100 x times and averaged. Garbage collector is emptied prior.
             elapsed_time = timeit.timeit(
-                lambda: algorithm_instance.compare_hash(self, fuzzy_hash, fuzzy_hash), number=100
+                lambda: algorithm_instance.compare_hash(fuzzy_hash, fuzzy_hash), number=100
             )/100
 
         return elapsed_time
@@ -66,7 +66,7 @@ class EfficienyTest(BaseTest):
         algorithm_instance = helper.get_algorithm(algorithm)
         # execution of the hash generation is timed 10 x times and averaged. Garbage collector is emptied prior.
         elapsed_time = timeit.timeit(
-            lambda: algorithm_instance.get_hash(self, filepath), number=10
+            lambda: algorithm_instance.get_hash(filepath), number=10
         ) / 10
         return elapsed_time
 

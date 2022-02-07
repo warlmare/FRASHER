@@ -5,7 +5,7 @@ import itertools
 import importlib
 
 import pandas as pd
-
+import ntpath
 
 def gettimestring():
     '''gets the current time as %Y%m%d-%H%M%S string
@@ -31,8 +31,9 @@ def get_algorithm(algorithm: str):
     :param algorithm: string name of the Algorithm as spelled as classname
     :return: algorithm_obj
     """
-    algorithm_obj = getattr(importlib.import_module("lib.hash_functions.algorithms"), algorithm)
-    return algorithm_obj
+    class_ = getattr(importlib.import_module("lib.hash_functions.algorithms"), algorithm)
+    instance = class_()
+    return instance
 
 def is_overlaping(a, b) -> bool:
     '''helper function
@@ -328,9 +329,14 @@ def get_dataframe(list_of_lists:list) ->pd.DataFrame:
     return df
 
 
+def get_file_name(path: str) -> str:
+    '''takes a filepath and returns the filename at the end
 
-
-
+    :param path: path to file
+    :return: filename
+    '''
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
 
 
 

@@ -70,7 +70,7 @@ class AlignmentRobustnessTest(BaseTest):
 
             for elem in file_list:
                 filesize = helper.getfilesize(filepath)
-                score = algorithm_instance.compare_file_against_file(algorithm_instance, filepath, elem)
+                score = algorithm_instance.compare_file_against_file(filepath, elem)
                 current_blocklength = int(re.sub('.*?([0-9]*)$',r'\1',elem))
                 blocksize_perc = round((current_blocklength / filesize) * 100, 2)
                 testrun_tb.append([filesize, current_blocklength, blocksize_perc, score])
