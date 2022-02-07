@@ -65,15 +65,23 @@ class NeedleInTheHaystackTest(BaseTest):
 
                 cutoff_prc = int(re.sub('.*?([0-9]*)$', r'\1', elem))
                 results_dict = algorithm_instance.compare_file_against_filter(filter, elem)
+
+                # The highest matching values are considered true positives
                 max_keys = [k for k, v in results_dict.items() if v == max(results_dict.values())]
                 filesize = helper.getfilesize(elem)
 
-                # TODO: catch max_keys.is_empty()
-                if filename in max_keys:
+
+                if filename in max_keys and not all(value == 0 for value in results_dict.values()):
                     TP = 1
                     FP = len(max_keys) - 1
                     TN = filter_len - TP - FP
                     FN = 0
+                    # covers the case that all files match with 0
+                elif all(value == 0 for value in results_dict.values()) == True:
+                    TP = "-"
+                    FP = "-"
+                    TN = "-"
+                    FN = "-"
                 else:
                     TP = 0
                     FP = len(max_keys)
@@ -87,24 +95,25 @@ class NeedleInTheHaystackTest(BaseTest):
             res_df = helper.get_dataframe(testrun_tb)
             df_list += [res_df]
 
-        results = reduce(lambda left, right: pd.merge(left, right, on=["testfile",
+        results = reduce(lambda left, right: pd.merge(left, right, on=["needle size (byte)",
                                                                        "cutoff (%)"]), df_list)
         return results
 
 
 if __name__ == '__main__':
     test_instance = NeedleInTheHaystackTest()
-    test_file = "../../../t5/002824.gif"
+    test_file = "../../../t5/test_file5_short"
     test_dir = "../../../t5"
-    #algorithms = ["SSDEEP"]
-    #results = test_instance.test(algorithms, test_file , test_dir)
-    #print(tabulate(results, headers='keys', tablefmt='psql'))
+    algorithms = ["TLSH", "SSDEEP"]
+    results = test_instance.test(algorithms, test_file , test_dir)
+    print(tabulate(results, headers='keys', tablefmt='psql'))
 
-    file2 = "../../20220207-154212_needle_in_the_haystack/random_58"
+    file2 = "../../testdata/20220207-185714_needle_in_the_haystack/random_57"
 
-    ssdeep_instance = lib.hash_functions.algorithms.SSDEEP()
-    #filter = ssdeep_instance.get_filter(test_dir)
-    #compare_dict = ssdeep_instance.compare_file_against_filter(filter, file2)
-    #print(compare_dict)
-    print(ssdeep_instance.get_hash(file2))
+    #tlsh_instance = algorithms.SSDEEP()
+    #filter = tlsh_instance.get_filter(test_dir)
+    #print(len(filter))
+    #compare_dict = tlsh_instance.compare_file_against_filter(filter, test_file)
+    #pprint.pprint(compare_dict)
+
 
