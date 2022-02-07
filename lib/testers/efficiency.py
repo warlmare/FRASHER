@@ -3,7 +3,7 @@ from sys import getsizeof
 from lib.helpers import helper
 import timeit
 import tabulate
-
+import pandas as pd
 import os
 
 class EfficienyTest(BaseTest):
@@ -70,30 +70,42 @@ class EfficienyTest(BaseTest):
         ) / 10
         return elapsed_time
 
-    def test(self, algorithm, testfile) -> list:
+    def test(self, algorithms, testfile) -> list:
         """ This test consists of a compression test, a reponse time test and a runtime efficiency test
 
         :param algorithm:
         :param testfile:
         :return: list of arrays with compression_value, response_time, runtime_efficiency
         """
+        df_list = []
 
-        compression = self.get_compression(algorithm, testfile)
-        response_time = self.get_response_time(algorithm, testfile)
-        runtime_efficiency = self.get_runtime_efficiency(algorithm, testfile)
-        testrun_tb = [["compression", "response_time", "runtime_efficiency"]]
-        testrun_tb.append([compression, response_time, runtime_efficiency])
-        return testrun_tb
+        for i in algorithms:
+            algorithm_instance = helper.get_algorithm(i)
+            testrun_tb = [["algorithm","compression", "response time", "runtime efficiency"]]
+
+            compression = self.get_compression(i, testfile)
+            response_time = self.get_response_time(i, testfile)
+            runtime_efficiency = self.get_runtime_efficiency(i, testfile)
+
+            testrun_tb.append([i, compression, response_time, runtime_efficiency])
+
+            res_df = helper.get_dataframe(testrun_tb)
+            df_list += [res_df]
+
+        df_final = pd.concat(df_list)
+        return df_final
 
 if __name__ == '__main__':
-    testfile1 = "../../testdata/test_file4.pdf"
+    testfile1 = "../../../testdata/test_file4.pdf"
     instance = EfficienyTest()
-    testrun = instance.test("SSDEEP", testfile1)
-    print(testrun)
+    #testrun = instance.test("SSDEEP", testfile1)
+    #print(testrun)
 
-    mrsh_test = instance.test("MRSHCF", testfile1)
-    print(mrsh_test)
-
+    #mrsh_test = instance.test("MRSHCF", testfile1)
+    #print(mrsh_test)
+    algorithms = ["SSDEEP", "TLSH", "MRSHCF"]
+    results = instance.test(algorithms, testfile1)
+    print(results)
 
 
 

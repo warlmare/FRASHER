@@ -417,7 +417,7 @@ class MRSHCF(Algorithm):
         :return: sim_score (Chunks Detected / Total Chunks) * 100 -> pre-decimal points
         '''
 
-        comparison_output = self.compare_file_against_file_tokenized(file1, file2)
+        comparison_output = self.compare_file_against_file_tokenized(file2, file1)
         chunks_total = comparison_output.get("total_chunks")
         chunks_detected = comparison_output.get("chunks_detected")
 

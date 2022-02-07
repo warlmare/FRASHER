@@ -69,7 +69,7 @@ class AlignmentRobustnessTest(BaseTest):
             testrun_tb = [["filesize (bytes)", "blocksize (bytes)", "blocksize (%)", i]]
 
             for elem in file_list:
-                filesize = helper.getfilesize(filepath)
+                filesize = helper.getfilesize(elem)
                 score = algorithm_instance.compare_file_against_file(filepath, elem)
                 current_blocklength = int(re.sub('.*?([0-9]*)$',r'\1',elem))
                 blocksize_perc = round((current_blocklength / filesize) * 100, 2)
@@ -86,9 +86,9 @@ class AlignmentRobustnessTest(BaseTest):
 
 if __name__ == '__main__':
     testinstance = AlignmentRobustnessTest()
-    testfile = "../../testdata/test_file3"
+    testfile = "../../../t5/001039.pdf"
 
     algorithms = ["SSDEEP", "TLSH", "MRSHCF"]
-    results = testinstance.test(algorithms, testfile, 1000000, 50000, "fixed")
+    results = testinstance.test(algorithms, testfile, 109749, 5000, "fixed")
     #results = testinstance.test(algorithms, testfile, 100, 5, "percentage")
     print(tabulate(results, headers='keys', tablefmt='psql'))

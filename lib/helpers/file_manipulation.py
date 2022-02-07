@@ -231,7 +231,7 @@ def fixed_blocks_random_head(filepath, blocklength):
     '''overrides the head of the file with specified amount of random bytes
 
     :param filepath:
-    :param blocklength: random bytes to be inserted at the beginning of the file
+    :param blocklength: random bytes to be written at the beginning of the file
     :return byt: the manipulated file copy as bytes
     '''
 
