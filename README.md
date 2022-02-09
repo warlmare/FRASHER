@@ -23,9 +23,9 @@ On Windows run `Windows_MAKEFILE` which will install the following:
 
 
 
-To start FRASHER please run `python3 frash.py`. FRASH has the following options: 
+To start FRASHER please run `python3 frasher.py`. FRASH has the following options: 
 ```
-$ python frash.py [-h] [-v] PATH
+$ python frasher.py [-h] [-v] PATH
 ```
 - `-h` prints usage instructions on the screen.
 - `-v` is the verbose mode and prints additional information during the testruns.
