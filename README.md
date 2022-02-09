@@ -111,6 +111,8 @@ Usable Algorithms are:
 - `Mrsh-CF` (Executable)
   - Allows for Approximate Matching via _Multi Resolution Hashing_. The Algorithm does not produce any intermediate string hash but saves known hashes in a filter. The lookup strategy involves a faster cuckoo filter instead of the bloom filter that was used in the preceeding implementation, _Mrsh-2_. FOr more information please refer to Vikas Gupta and Frank Breitingers [_How Cuckoo Filter Can Improve Existing Approximate Matching Techniques_](https://www.researchgate.net/publication/292985174_How_Cuckoo_Filter_Can_Improve_Existing_Approximate_Matching_Techniques.)
   - The Executable in this repository is a updated version of the [original algorithm](https://www.fbreitinger.de/wp-content/uploads/2015/06/mrsh_cuckoo.zip) that runs on > Ubuntu 18. 
+- `MRSH-v2` (Executable)
+  - beta state - documentation will follow soon.
 - `Sdhash` (Executable)
   - beta state - documentation will follow soon.
 - `SiSe` (Executable)
