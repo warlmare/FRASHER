@@ -46,10 +46,10 @@ def getrandchunk(filepath, chunkSize):
     buff = bytearray(chunkSize)
     f = open(filepath, "rb")
     f.seek(offset)
-    chunk = f.read(chunkSize)
+    buff = f.read(chunkSize)
     f.close()
 
-    return chunk
+    return buff
 
 def overwrite_with_chunk(filepath, chunk):
     '''cuts a file into two halfes, inserts a chunk at a random position
@@ -79,6 +79,33 @@ def overwrite_with_chunk(filepath, chunk):
 
     return byt, offset
 
+def overwrite_with_chunk_byt(filepath, chunk_byt):
+    '''cuts a file into two halfes, inserts a chunk at a random position
+    and rejoines the two halfs.
+
+    :param: filepath
+    :param chunk byte
+
+    :return: modified bytes
+
+    :raise: TODO: raise exception when writing EOF
+    '''
+
+    chunkSize = len(chunk_byt)
+    offset = getrandoffset(filepath, chunkSize)
+
+    # end is where the chunk ends and the second half begins
+    end = offset + chunkSize
+    f = open(filepath, "rb")
+    first_half = f.read(offset)
+    f.seek(end)
+    second_half = f.read()
+    f.close()
+
+    # merging the three parts
+    byt = first_half + chunk_byt + second_half
+
+    return byt, offset
 
 def common_block_insertion(filePath1, filePath2, chunk_filePath, chunksize):
     '''
@@ -99,6 +126,23 @@ def common_block_insertion(filePath1, filePath2, chunk_filePath, chunksize):
 
     return byt1, byt2
 
+def common_block_insertion_byt(filePath1, filePath2, chunk_bytes):
+    '''
+    insert common byte block at random positions into two files
+
+    :param filePath1:
+    :param filePath2:
+    :param chunk_bytes: bytesobject that will be inserted in the file
+
+    :return: two new byte arrays with a shared common block
+    '''
+
+
+    #the offsets that are passed here are not important in this method
+    byt1, offset1 = overwrite_with_chunk_byt(filePath1, chunk_bytes)
+    byt2, offset2 = overwrite_with_chunk_byt(filePath2, chunk_bytes)
+
+    return byt1, byt2
 
 def random_cutting_perc(filepath, percentage):
     '''
@@ -160,7 +204,7 @@ def random_cutting_byte(filepath, size:int):
 
     return byt, offset
 
-#TODO: return the product
+
 def end_side_cutting(filepath, percentage):
     '''
      cuts off a certain percentage from the tail of a file
@@ -187,6 +231,30 @@ def end_side_cutting(filepath, percentage):
     # TODO: check wether the remaining file has the right byte size
 
 
+def front_side_cutting(filepath, percentage):
+    '''
+     cuts off a certain percentage from the tail of a file
+
+    :param filepath:
+    :param percentage:
+
+    :return byt: the bytes of the file - cutoff
+    '''
+
+    filesize = getfilesize(filepath)
+    cutoff = int((percentage * filesize) / 100.0)
+
+    f = open(filepath, "rb")
+    #jumps to the offset after the cutoff
+    f.seek(cutoff)
+    #reads everything after the offset from file
+    byt = f.read()
+    f.close()
+
+    return byt
+
+    # TODO: check wether the remaining file has the right byte size
+
 def random_byte_generation(size):
     '''generates a random set of bytes
 
@@ -197,6 +265,7 @@ def random_byte_generation(size):
 
     random_bytes = random.randbytes(size)
     return random_bytes
+
 
 #TODO: use this for alignment robustness testing, take return type
 def percentage_blocks_random_head(filepath, percentage):
@@ -209,7 +278,6 @@ def percentage_blocks_random_head(filepath, percentage):
 
     filesize = getfilesize(filepath)
 
-    # everthing before the offset will be cutoff
     offset = int((percentage * filesize) / 100.0)
 
     f = open(filepath, "rb")
@@ -252,6 +320,7 @@ def fixed_blocks_random_head(filepath, blocklength):
     return byt
 
 
+
 def random_substitution(filepath:str, blocklength:int) -> bytes:
     '''
     inserts random bytes at a random position in file
@@ -285,11 +354,8 @@ if __name__ == '__main__':
 
     filePath1 = "../../testdata/2048/test_file1_2048"
     filePath2 = "../../testdata/2048/test_file2_2048"
-    chunk_filePath = "../../testdata/test_file3"
+    chunk_filePath = "../../testdata/test_file1"
 
-    byt1 ,byt2 = common_block_insertion(filePath1, filePath2, chunk_filePath, 1600)
+    #byt1 ,byt2 = common_block_insertion(filePath1, filePath2, chunk_filePath, 1600)
 
-    f1 = open("../../testdata/test1", "wb")
-    f1.write(byt1)
-    f1.close()
 

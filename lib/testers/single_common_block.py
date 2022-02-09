@@ -4,9 +4,11 @@ from lib.helpers import helper
 from lib.hash_functions import algorithms
 from tabulate import tabulate
 import re
-
+import matplotlib.pyplot as plt
 import pandas as pd
 from functools import reduce
+import seaborn as sns
+import matplotlib.pyplot as mp
 
 class SingleCommonBlock(BaseTest):
 
@@ -30,19 +32,27 @@ class SingleCommonBlock(BaseTest):
         filesize = helper.getfilesize(filepath1)
         chunksize = int(filesize / 2)
         filepaths = []
+        chunk_byt = file_manipulation.getrandchunk(chunk_filePath, chunksize)#random_byte_generation(chunksize)
+
 
         while chunksize > 0:
-            chunksize -= 16000
+            if chunksize <= 16000:
+                chunksize -= 100
+            else:
+                chunksize -= 16000
 
+            #The chunk byte is cut off at the end turn after turn ...
+            chunk_byt = chunk_byt[:chunksize]
             first_new_file_path = target_path + "/_first_file_" + str(chunksize)
             second_new_file_path = target_path + "/_second_file_" + str(chunksize)
 
             # first_new_file and second_new_file are bytestreams of the files to be written to disk
-            first_new_file, second_new_file = file_manipulation.common_block_insertion(
+            first_new_file, second_new_file = file_manipulation.common_block_insertion_byt(
                 filepath1,
                 filepath2,
-                chunkfile_path,
-                chunksize
+                chunk_byt
+                #chunkfile_path,
+                #chunksize
             )
 
 
@@ -92,6 +102,7 @@ class SingleCommonBlock(BaseTest):
                 first_file = elem[0]
                 second_file = elem[1]
 
+                filesize = helper.getfilesize(first_file)
                 scores = []
                 # test are performed 5 times and averaged
                 for x in range(5):
@@ -103,7 +114,7 @@ class SingleCommonBlock(BaseTest):
 
                 #takes the suffix of the testfiles
                 chunksize = int(re.sub('.*?([0-9]*)$',r'\1',first_file))
-                fragmentsize_prc =  int((chunksize / filesize) * 100)
+                fragmentsize_prc =  (chunksize / filesize) * 100
                 testrun_tb.append([filesize, chunksize, fragmentsize_prc, score])
 
             res_df = helper.get_dataframe(testrun_tb)
@@ -120,9 +131,9 @@ if __name__ == '__main__':
     testinstance = SingleCommonBlock()
 
 
-    filePath1 = "../../testdata/2048/test_file1_2048"
-    filePath2 = "../../testdata/2048/test_file2_2048"
-    chunk_filePath = "../../testdata/test_file3"
+    filePath1 = "../../testdata/512/test_file1_512"
+    filePath2 = "../../testdata/512/test_file2_512"
+    chunk_filePath = "../../testdata/testfile1"
 
     # for every filesize there needs to be one single_common_block_correlation_test
     # TODO: needs to be realized for the filesizes = [512,2048,8192] for each filesize 5 runs and the values are averaged
@@ -130,6 +141,17 @@ if __name__ == '__main__':
     algorithms = ["SSDEEP","TLSH", "MRSHCF"]
     results = testinstance.test(algorithms, filePath1, filePath2, chunk_filePath)
     print(tabulate(results, headers='keys', tablefmt='psql'))
+    results.to_csv('../../results/single_common_block_512.csv')
+
+    data = pd.read_csv('../../results/single_common_block_512.csv', index_col=0)
+    data["fragment size (bytes)"] = data["fragment size (bytes)"].div(1000)
+    plot1 = data.plot(x="fragment size (bytes)", y=["SSDEEP", "TLSH", "MRSHCF"])
+    plot1.invert_xaxis()
+    plot1.set_ylabel("Similarity Score")
+    plot1.set_xlabel("Fragment Size (KB)")
+    plot1.set_title("Single Common Block Test (512)")
+    plt.savefig("../../results/single_common_block_test_512.png" , dpi=300)
+    plt.show()
 
 
 
