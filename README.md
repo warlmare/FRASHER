@@ -104,24 +104,24 @@ Efficiency consists of three subtests:
 
 ## Algorithms
 Usable Algorithms are: 
-- `Ssdeep` (Python library)
+- `ssdeep` (Python library)
   - Produces context triggered piecewise hashes (CTPH) in string form. Widely used for simple identification purposes (e. g. in VirusTotal). See the  [ssdeep projects website](https://ssdeep-project.github.io/ssdeep/index.html) for more information. 
 - `TLSH` (Python library)
   - The _Trendmicro Locality Sensitive Hash_ produces string hashes and is the defacto standard for malware detection and has been adopted in a range of projects such as VirusTotal. For more information please refer to the [official website](http://tlsh.org/).
-- `Mrsh-CF` (Executable)
+- `mrsh-cf` (Executable)
   - Allows for Approximate Matching via _Multi Resolution Hashing_. The Algorithm does not produce any intermediate string hash but saves known hashes in a filter. The lookup strategy involves a faster cuckoo filter instead of the bloom filter that was used in the preceeding implementation, _Mrsh-2_. FOr more information please refer to Vikas Gupta and Frank Breitingers [_How Cuckoo Filter Can Improve Existing Approximate Matching Techniques_](https://www.researchgate.net/publication/292985174_How_Cuckoo_Filter_Can_Improve_Existing_Approximate_Matching_Techniques.)
   - The Executable in this repository is a updated version of the [original algorithm](https://www.fbreitinger.de/wp-content/uploads/2015/06/mrsh_cuckoo.zip) that runs on > Ubuntu 18. 
 - `MRSH-v2` (Executable)
   - beta state - documentation will follow soon.
-- `Sdhash` (Executable)
+- `sdhash` (Executable)
   - beta state - documentation will follow soon.
 - `SiSe` (Executable)
   - beta state - documentation will follow soon.
-- `Mrsh-HBFT` (Executable)
+- `mrsh-hbft` (Executable)
   - beta state - documentation will follow soon.
 - `Jsdhash` (Executable)
   - beta state - documentation will follow soon.
-- `Simhash` (Python library) 
+- `SimHash` (Python library) 
   - beta state - documentation will follow soon.
 
 ### Installation of the Algorithms
@@ -152,7 +152,7 @@ This fork includes `fuzzy_64.dll` allowing ssdeep to run on 32 and 64 bit python
 
 #### TLSH
 
-#### Mrsh-Cf
+#### mrsh-cf
 
 
 
