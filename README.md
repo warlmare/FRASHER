@@ -99,6 +99,7 @@ The Folder Structure is similar to that of the  original FRASH.
 ### Testcases
 
 ####Efficiency 
+
 Efficiency consists of three subtests:
 - **Runtime efficiency** measures the time, which the algorithm needs to process the input. Processing in this case means that we measure the time for reading the file from the device and generating the fingerprint.
 
