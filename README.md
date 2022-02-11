@@ -86,6 +86,8 @@ The Folder Structure is similar to that of the  original FRASH.
 │   │   ├───helper.py
 │   │   └───file_manipulation.py
 │   ├───log_analysers
+│   │   ├───eval.py
+│   │   └───...
 │   └───testers
 │       ├───base_test.py
 │       ├───aligment_robustness.py
