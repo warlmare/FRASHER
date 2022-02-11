@@ -68,11 +68,19 @@ The Folder Structure is similar to that of the  original FRASH.
 ├───lib               
 │   ├───hash_functions
 │   │   ├───algorithms.py
-|   |   ├───mrsh_cuckoo.exe
-|   |   ├───sdhash.exe
-|   |   ├───sise.exe
-│   │   ├───mrsh_hbft.exe
-│   │   └───Jsdhash.exe
+│   │   ├───python_libs
+|   |   |   ├───tlsh.py
+|   |   |   ├───ssdeep.py
+|   |   |   └───...
+│   │   ├───executables
+|   |   |   ├───mrsh-v2
+|   |   |   ├───mrsh_cf
+|   |   |   ├───sdhash
+|   |   |   ├───fbhash
+|   |   |   ├───sise
+|   |   |   ├───mrsh_hbft
+|   |   |   ├───jsdhash
+|   |   |   └───...
 │   ├───helpers
 │   │   ├───testfiles_backup
 │   │   ├───helper.py
@@ -83,7 +91,9 @@ The Folder Structure is similar to that of the  original FRASH.
 │       ├───aligment_robustness.py
 │       ├───fragment_detection.py
 │       ├───random_noise_resistance.py
-│       └───single_common_block.py      
+│       ├───single_common_block.py
+│       └───needle_in_a_haystack.py     
+│       └───...
 └───testdata
     └───2048
 ```
