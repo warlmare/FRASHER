@@ -95,7 +95,10 @@ The Folder Structure is similar to that of the  original FRASH.
 │       └───needle_in_a_haystack.py     
 │       └───...
 └───testdata
-    └───2048
+    ├───t5_corpus
+    ├───testfile_x
+    ├───testfile_y
+    └───...
 ```
 - **hash functions** 
   - Contains the interface to all algorithms in `algorithms.py` and all the executables for the algorithms.
