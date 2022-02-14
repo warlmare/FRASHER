@@ -1,5 +1,6 @@
 import os
 import random
+from lib.helpers import helper
 
 
 # TODO: rename chunk into block
@@ -266,9 +267,25 @@ def random_byte_generation(size):
     random_bytes = random.randbytes(size)
     return random_bytes
 
+def get_random_files(directoy_path, size, file_ctr):
+    ''' creates file_ctr amount of files of size (size)
+    that are made up of totally random bytes
 
-#TODO: use this for alignment robustness testing, take return type
-def percentage_blocks_random_head(filepath, percentage):
+    :param directoy_path:
+    :param size:
+    :paran file_ctr:
+    '''
+
+    for x in range(file_ctr):
+        byt = random_byte_generation(size)
+        filename = str(size) + "_" + str(x)
+        filepath = directoy_path + "/" + filename
+        f = open(filepath, "wb")
+        f.write(byt)
+        f.close()
+
+
+def percentage_blocks_random_head_overwrite(filepath, percentage):
     '''
     inserts a percentage of random bytes at the beginning of a file
 
@@ -295,7 +312,39 @@ def percentage_blocks_random_head(filepath, percentage):
 
     return byt
 
-def fixed_blocks_random_head(filepath, blocklength):
+def percentage_blocks_random_head_insert(filepath, mode,  percentage):
+    '''
+    inserts a percentage of random bytes at the beginning of a file
+
+    :param filepath:
+    :param mode: head or tail insert
+    :param percentage: this amount of the file will be overwritten with random bytes
+    '''
+
+    filesize = helper.getfilesize(filepath)
+    quotient = 0.01 * percentage
+
+    offset = int(quotient * filesize)
+
+
+
+
+    # generate the first randomly generated half of the file
+    random_part = random_byte_generation(offset)
+
+    # move pointer to offset and read the second half of the file from the offset
+    f = open(filepath, "rb")
+    file_part = f.read()
+    f.close()
+
+    # combining the new first half and the old second half
+    if mode == "percentage_head":
+        byt = random_part + file_part
+    elif mode == "percentage_tail":
+        byt =  file_part + random_part
+    return byt
+
+def fixed_blocks_random_head_overwrite(filepath, blocklength):
     '''overrides the head of the file with specified amount of random bytes
 
     :param filepath:
@@ -319,6 +368,29 @@ def fixed_blocks_random_head(filepath, blocklength):
 
     return byt
 
+def fixed_blocks_random_head_insert(filepath, blocklength):
+    '''overrides the head of the file with specified amount of random bytes
+
+    :param filepath:
+    :param blocklength: random bytes to be written at the beginning of the file
+    :return byt: the manipulated file copy as bytes
+    '''
+
+    filesize = getfilesize(filepath)
+    f = open(filepath, "rb")
+
+    # generate the first randomly generated half of the file
+    first_half = random_byte_generation(blocklength)
+
+    # move pointer to offset and read the second half of the file from the offset
+
+    second_half = f.read()
+    f.close()
+
+    # combining the new first half and the old second half
+    byt = first_half + second_half
+
+    return byt
 
 
 def random_substitution(filepath:str, blocklength:int) -> bytes:
@@ -334,6 +406,8 @@ def random_substitution(filepath:str, blocklength:int) -> bytes:
     byt, offset = overwrite_with_chunk(filepath, chunk)
     return byt, offset
 
+
+# TODO: Still overwrites and does not insert
 def random_insertion(filepath:str, blocklength:int) -> bytes:
     '''
     inserts random bytes of blocklength at a random position in a file.

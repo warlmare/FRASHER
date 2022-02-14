@@ -6,6 +6,8 @@ from tabulate import tabulate
 import re
 from functools import reduce
 import pandas as pd
+import os
+import matplotlib.pyplot as plt
 
 class AlignmentRobustnessTest(BaseTest):
 
@@ -30,9 +32,11 @@ class AlignmentRobustnessTest(BaseTest):
             new_file_path = target_path + "/" + mode + "_" + str(current_blocklength)
 
             if mode == "fixed":
-                new_file_byt = file_manipulation.fixed_blocks_random_head(filepath, current_blocklength)
-            elif mode == "percentage":
-                new_file_byt = file_manipulation.percentage_blocks_random_head(filepath, current_blocklength)
+                new_file_byt = file_manipulation.fixed_blocks_random_head_insert(filepath, current_blocklength)
+            elif mode == "percentage_head" or "percentage_tail":
+                new_file_byt = file_manipulation.percentage_blocks_random_head_insert(filepath,
+                                                                                      mode,
+                                                                                      current_blocklength)
 
             f = open(new_file_path, "wb")
             f.write(new_file_byt)
@@ -66,29 +70,65 @@ class AlignmentRobustnessTest(BaseTest):
         #TODO: mode: "percentage" needs a whole other calculation this needs to be addressed with if mode = ...
         for i in algorithms:
             algorithm_instance = helper.get_algorithm(i)
-            testrun_tb = [["filesize (bytes)", "blocksize (bytes)", "blocksize (%)", i]]
+            if mode == "fixed":
+                testrun_tb = [["filesize (bytes)", "blocksize (bytes)", "blocksize (%)", i]]
+            elif mode == "percentage_head" or "percentage_tail":
+                testrun_tb = [["filesize (bytes)", "blocksize (%)", i]]
 
             for elem in file_list:
                 filesize = helper.getfilesize(elem)
-                score = algorithm_instance.compare_file_against_file(filepath, elem)
+                score = algorithm_instance.compare_file_against_file(elem, filepath)
+
                 current_blocklength = int(re.sub('.*?([0-9]*)$',r'\1',elem))
-                blocksize_perc = round((current_blocklength / filesize) * 100, 2)
-                testrun_tb.append([filesize, current_blocklength, blocksize_perc, score])
+                if mode == "fixed":
+                    blocksize_perc = round((current_blocklength / filesize) * 100, 2)
+                    testrun_tb.append([filesize, current_blocklength, blocksize_perc, score])
+                elif mode == "percentage_head" or "percentage_tail":
+                    testrun_tb.append([filesize, current_blocklength, score])
 
             res_df = helper.get_dataframe(testrun_tb)
             df_list += [res_df]
 
-        results = reduce(lambda left, right: pd.merge(left, right, on=['filesize (bytes)',
-                                                                       "blocksize (bytes)",
-                                                                       "blocksize (%)"]), df_list)
+        if mode == "fixed":
+            results = reduce(lambda left, right: pd.merge(left, right, on=['filesize (bytes)',
+                                                                           "blocksize (bytes)",
+                                                                           "blocksize (%)"]), df_list)
+        elif mode == "percentage_head" or "percentage_tail":
+            results = reduce(lambda left, right: pd.merge(left, right, on=['filesize (bytes)',
+                                                                           "blocksize (%)"]), df_list)
+
 
         return results
 
 if __name__ == '__main__':
     testinstance = AlignmentRobustnessTest()
-    testfile = "../../../t5/001039.pdf"
+    testfile = "../../testdata/testfile_1000_random"
 
     algorithms = ["SSDEEP", "TLSH", "MRSHCF"]
-    results = testinstance.test(algorithms, testfile, 109749, 5000, "fixed")
-    #results = testinstance.test(algorithms, testfile, 100, 5, "percentage")
+    #results = testinstance.test(algorithms, testfile, 109749, 5000, "fixed")
+
+    #results_tail = testinstance.test(algorithms, testfile, 500, 10, "percentage_tail")
+    #print(tabulate(results_tail, headers='keys', tablefmt='psql'))
+    #results_head = testinstance.test(algorithms, testfile, 500, 10, "percentage_head")
+    #print(tabulate(results_head, headers='keys', tablefmt='psql'))
+
+    directory_path = "../../testdata/testfiles_alignment_robustness"
+    file_manipulation.get_random_files(directory_path, 30000, 10)
+    result_list = []
+
+    for subdir, dirs, files in os.walk(directory_path):
+        for file in files:
+            results_head = testinstance.test(algorithms, testfile, 500, 10, "percentage_head")
+            result_list += [results_head]
+
+    results = reduce(pd.DataFrame.add, result_list) / len(result_list)
     print(tabulate(results, headers='keys', tablefmt='psql'))
+    results.to_csv('../../results/alignment_robustness_head_30Kb.csv')
+    data = pd.read_csv('../../results/alignment_robustness_head_30Kb.csv', index_col=0)
+    plot1 = data.plot(x="blocksize (%)", y=["SSDEEP", "TLSH", "MRSHCF"])
+    # plot1.invert_xaxis()
+    plot1.set_ylabel("Similarity Score")
+    plot1.set_xlabel("Size of added block (%)")
+    plot1.set_title("Alignment Robustness Head Test (30 KB files)")
+    plt.savefig("../../results/alignment_robustness_head_30Kb.png", dpi=300)
+    plt.show()

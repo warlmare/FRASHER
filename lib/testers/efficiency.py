@@ -96,7 +96,7 @@ class EfficienyTest(BaseTest):
         return df_final
 
 if __name__ == '__main__':
-    testfile1 = "../../../testdata/test_file4.pdf"
+    testfile1 = "../../testdata/testfiles_alignment_robustness"
     instance = EfficienyTest()
     #testrun = instance.test("SSDEEP", testfile1)
     #print(testrun)
