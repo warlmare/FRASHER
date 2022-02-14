@@ -23,9 +23,9 @@ On Windows run `Windows_MAKEFILE` which will install the following:
 
 
 
-To start FRASHER please run `python3 frash.py`. FRASH has the following options: 
+To start FRASHER please run `python3 frasher.py`. FRASH has the following options: 
 ```
-$ python frash.py [-h] [-v] PATH
+$ python frasher.py [-h] [-v] PATH
 ```
 - `-h` prints usage instructions on the screen.
 - `-v` is the verbose mode and prints additional information during the testruns.
@@ -68,24 +68,39 @@ The Folder Structure is similar to that of the  original FRASH.
 ├───lib               
 │   ├───hash_functions
 │   │   ├───algorithms.py
-|   |   ├───mrsh_cuckoo.exe
-|   |   ├───sdhash.exe
-|   |   ├───sise.exe
-│   │   ├───mrsh_hbft.exe
-│   │   └───Jsdhash.exe
+│   │   ├───python_libs
+|   |   |   ├───tlsh.py
+|   |   |   ├───ssdeep.py
+|   |   |   └───...
+│   │   ├───executables
+|   |   |   ├───mrsh-v2
+|   |   |   ├───mrsh_cf
+|   |   |   ├───sdhash
+|   |   |   ├───fbhash
+|   |   |   ├───sise
+|   |   |   ├───mrsh_hbft
+|   |   |   ├───jsdhash
+|   |   |   └───...
 │   ├───helpers
 │   │   ├───testfiles_backup
 │   │   ├───helper.py
 │   │   └───file_manipulation.py
 │   ├───log_analysers
+│   │   ├───eval.py
+│   │   └───...
 │   └───testers
 │       ├───base_test.py
 │       ├───aligment_robustness.py
 │       ├───fragment_detection.py
 │       ├───random_noise_resistance.py
-│       └───single_common_block.py      
+│       ├───single_common_block.py
+│       └───needle_in_a_haystack.py     
+│       └───...
 └───testdata
-    └───2048
+    ├───t5_corpus
+    ├───testfile_x
+    ├───testfile_y
+    └───...
 ```
 - **hash functions** 
   - Contains the interface to all algorithms in `algorithms.py` and all the executables for the algorithms.
@@ -99,27 +114,30 @@ The Folder Structure is similar to that of the  original FRASH.
 ### Testcases
 
 ####Efficiency 
+
 Efficiency consists of three subtests:
 - **Runtime efficiency** measures the time, which the algorithm needs to process the input. Processing in this case means that we measure the time for reading the file from the device and generating the fingerprint.
 
 ## Algorithms
 Usable Algorithms are: 
-- `Ssdeep` (Python library)
+- `ssdeep` (Python library)
   - Produces context triggered piecewise hashes (CTPH) in string form. Widely used for simple identification purposes (e. g. in VirusTotal). See the  [ssdeep projects website](https://ssdeep-project.github.io/ssdeep/index.html) for more information. 
 - `TLSH` (Python library)
   - The _Trendmicro Locality Sensitive Hash_ produces string hashes and is the defacto standard for malware detection and has been adopted in a range of projects such as VirusTotal. For more information please refer to the [official website](http://tlsh.org/).
-- `Mrsh-CF` (Executable)
+- `mrsh-cf` (Executable)
   - Allows for Approximate Matching via _Multi Resolution Hashing_. The Algorithm does not produce any intermediate string hash but saves known hashes in a filter. The lookup strategy involves a faster cuckoo filter instead of the bloom filter that was used in the preceeding implementation, _Mrsh-2_. FOr more information please refer to Vikas Gupta and Frank Breitingers [_How Cuckoo Filter Can Improve Existing Approximate Matching Techniques_](https://www.researchgate.net/publication/292985174_How_Cuckoo_Filter_Can_Improve_Existing_Approximate_Matching_Techniques.)
   - The Executable in this repository is a updated version of the [original algorithm](https://www.fbreitinger.de/wp-content/uploads/2015/06/mrsh_cuckoo.zip) that runs on > Ubuntu 18. 
-- `Sdhash` (Executable)
+- `MRSH-v2` (Executable)
+  - beta state - documentation will follow soon.
+- `sdhash` (Executable)
   - beta state - documentation will follow soon.
 - `SiSe` (Executable)
   - beta state - documentation will follow soon.
-- `Mrsh-HBFT` (Executable)
+- `mrsh-hbft` (Executable)
   - beta state - documentation will follow soon.
 - `Jsdhash` (Executable)
   - beta state - documentation will follow soon.
-- `Simhash` (Python library) 
+- `SimHash` (Python library) 
   - beta state - documentation will follow soon.
 
 ### Installation of the Algorithms
@@ -150,7 +168,7 @@ This fork includes `fuzzy_64.dll` allowing ssdeep to run on 32 and 64 bit python
 
 #### TLSH
 
-#### Mrsh-Cf
+#### mrsh-cf
 
 
 
