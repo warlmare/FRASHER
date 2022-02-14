@@ -45,13 +45,13 @@ class EfficienyTest(BaseTest):
         # some algorithms return no hashes but their hash size instead
         if type(fuzzy_hash) is int:
             elapsed_time = timeit.timeit(
-                lambda: algorithm_instance.compare_hash(filepath), number=100
-            ) / 100
+                lambda: algorithm_instance.compare_hash(filepath), number=10 #0
+            ) / 10 #0
         elif (type(fuzzy_hash) is str):
             #execution of the hash comparison is timed 100 x times and averaged. Garbage collector is emptied prior.
             elapsed_time = timeit.timeit(
-                lambda: algorithm_instance.compare_hash(fuzzy_hash, fuzzy_hash), number=100
-            )/100
+                lambda: algorithm_instance.compare_hash(fuzzy_hash, fuzzy_hash), number=10 #0
+            )/10 #0
 
         return elapsed_time
 
@@ -96,7 +96,7 @@ class EfficienyTest(BaseTest):
         return df_final
 
 if __name__ == '__main__':
-    testfile1 = "../../testdata/testfiles_alignment_robustness"
+    testfile1 = "../../testdata/testfiles_efficiency/testfile_10GB_random"
     instance = EfficienyTest()
     #testrun = instance.test("SSDEEP", testfile1)
     #print(testrun)

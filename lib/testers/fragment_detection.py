@@ -7,6 +7,10 @@ import pandas as pd
 import re
 from functools import reduce
 from random import randint
+import matplotlib.pyplot as plt
+import os
+
+
 class FragmentDetectionTest(BaseTest):
 
 
@@ -99,15 +103,33 @@ class FragmentDetectionTest(BaseTest):
 if __name__ == '__main__':
     testinstance = FragmentDetectionTest()
 
-    testfile = "../../../t5/001673.pdf"
+    testfile = "../../testdata/testfiles_alignment_robustness/30000_8"
 
     #testrun = testinstance.test("tlsh", "random", testfile,5)
     #print(tabulate(testrun)) # TODO: this needs to be outsourced into a log module
 
     algorithms = ["SSDEEP", "TLSH", "MRSHCF"]
-    results = testinstance.test_debug(algorithms, "random", testfile)
-    print(tabulate(results, headers='keys', tablefmt='psql'))
 
+    result_list = []
+    directory_path = "../../testdata/testfiles_fragment_detection"
+    file_manipulation.get_random_files(directory_path, 65000, 10)
+
+    for subdir, dirs, files in os.walk(directory_path):
+        for file in files:
+            results_head = testinstance.test_debug(algorithms, "random", testfile)
+            result_list += [results_head]
+
+    results = reduce(pd.DataFrame.add, result_list) / len(result_list)
+    print(tabulate(results, headers='keys', tablefmt='psql'))
+    results.to_csv('../../results/fragment_detection_65KB.csv')
+    data = pd.read_csv('../../results/fragment_detection_65KB.csv', index_col=0)
+    plot1 = data.plot(x="cutoff size %", y=["SSDEEP", "TLSH", "MRSHCF"])
+    # plot1.invert_xaxis()
+    plot1.set_ylabel("Similarity Score")
+    plot1.set_xlabel("Cutoff size (%)")
+    plot1.set_title("Fragment Detection Test (65 KB files)")
+    plt.savefig("../../results/fragment_detection_65KB.png", dpi=300)
+    plt.show()
 
 
 

@@ -312,7 +312,33 @@ def percentage_blocks_random_head_overwrite(filepath, percentage):
 
     return byt
 
-def percentage_blocks_random_head_insert(filepath, mode,  percentage):
+def percentage_blocks_random_tail_overwrite(filepath, percentage):
+    '''
+    inserts a percentage of random bytes at the beginning of a file
+
+    :param filepath:
+    :param percentage: this amount of the file will be overwritten with random bytes
+    '''
+
+    filesize = getfilesize(filepath)
+
+    offset = int((percentage * filesize) / 100.0)
+
+    f = open(filepath, "rb")
+
+    # generate the second randomly generated half of the file
+    second_half = random_byte_generation(offset)
+
+    #reads file until offset -> first half of file
+    first_half = f.read(offset)
+    f.close()
+
+    # combining the new first half and the old second half
+    byt = first_half + second_half
+
+    return byt
+
+def percentage_blocks_random_head_tail_insert(filepath, mode, percentage):
     '''
     inserts a percentage of random bytes at the beginning of a file
 
@@ -325,8 +351,6 @@ def percentage_blocks_random_head_insert(filepath, mode,  percentage):
     quotient = 0.01 * percentage
 
     offset = int(quotient * filesize)
-
-
 
 
     # generate the first randomly generated half of the file

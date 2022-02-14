@@ -34,9 +34,9 @@ class AlignmentRobustnessTest(BaseTest):
             if mode == "fixed":
                 new_file_byt = file_manipulation.fixed_blocks_random_head_insert(filepath, current_blocklength)
             elif mode == "percentage_head" or "percentage_tail":
-                new_file_byt = file_manipulation.percentage_blocks_random_head_insert(filepath,
-                                                                                      mode,
-                                                                                      current_blocklength)
+                new_file_byt = file_manipulation.percentage_blocks_random_head_tail_insert(filepath,
+                                                                                           mode,
+                                                                                           current_blocklength)
 
             f = open(new_file_path, "wb")
             f.write(new_file_byt)
