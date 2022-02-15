@@ -45,12 +45,12 @@ class EfficienyTest(BaseTest):
         # some algorithms return no hashes but their hash size instead
         if type(fuzzy_hash) is int:
             elapsed_time = timeit.timeit(
-                lambda: algorithm_instance.compare_hash(filepath), number=10 #0
-            ) / 10 #0
+                lambda: algorithm_instance.compare_hash(filepath), number=100
+            ) / 100
         elif (type(fuzzy_hash) is str):
             #execution of the hash comparison is timed 100 x times and averaged. Garbage collector is emptied prior.
             elapsed_time = timeit.timeit(
-                lambda: algorithm_instance.compare_hash(fuzzy_hash, fuzzy_hash), number=10 #0
+                lambda: algorithm_instance.compare_hash(fuzzy_hash, fuzzy_hash), number=100
             )/10 #0
 
         return elapsed_time
@@ -96,16 +96,33 @@ class EfficienyTest(BaseTest):
         return df_final
 
 if __name__ == '__main__':
-    testfile1 = "../../testdata/testfiles_efficiency/testfile_10GB_random"
+
+    testfiles = [
+    "../../testdata/testfiles_efficiency/testfile_1GB_random",
+    "../../testdata/testfiles_efficiency/testfile_500MB_random",
+    "../../testdata/testfiles_efficiency/testfile_100MB_random",
+    "../../testdata/testfiles_efficiency/testfile_50MB_random",
+    "../../testdata/testfiles_efficiency/testfile_10MB_random",
+    "../../testdata/testfiles_efficiency/testfile_1MB_random",
+    "../../testdata/testfiles_efficiency/testfile_10KB_random",
+    "../../testdata/testfiles_efficiency/testfile_1KB_random",
+    "../../testdata/testfiles_efficiency/testfile_100b_random"
+        ]
+
+
     instance = EfficienyTest()
     #testrun = instance.test("SSDEEP", testfile1)
     #print(testrun)
 
     #mrsh_test = instance.test("MRSHCF", testfile1)
     #print(mrsh_test)
+    results_list = []
     algorithms = ["SSDEEP", "TLSH", "MRSHCF"]
-    results = instance.test(algorithms, testfile1)
-    print(results)
+    for file in testfiles:
+        result = instance.test(algorithms, file)
+        results_list += [result]
+
+    print(results_list)
 
 
 

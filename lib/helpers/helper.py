@@ -3,7 +3,7 @@ import time
 import os
 import itertools
 import importlib
-
+from pathlib import Path
 import pandas as pd
 import ntpath
 
@@ -338,6 +338,21 @@ def get_file_name(path: str) -> str:
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
 
+
+def get_extensions_in_dir(dir_path)->list:
+    '''returns a list with all filetypes in a dir
+
+    :param dir_path:
+    :return:
+    '''
+    excluded = ['', '.txt', '.lnk']
+    extensions = set()
+    for _, _, files in os.walk(dir_path):
+        for f in files:
+            ext = Path(f).suffix.lower()
+            if not ext in excluded:
+                extensions.add(ext)
+    return extensions
 
 
 

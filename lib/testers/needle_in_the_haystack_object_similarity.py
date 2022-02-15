@@ -11,6 +11,7 @@ import pandas as pd
 from tabulate import tabulate
 import re
 import zlib, sys
+from random import shuffle
 
 class NIHTestObjectSimilarity(BaseTest):
 
@@ -27,6 +28,11 @@ class NIHTestObjectSimilarity(BaseTest):
         files = os.listdir(directory_path)
         for file in files:
             filepaths.append(os.path.join(directory_path,file))
+
+        # ... so that tests are not always run with the same files
+        shuffle(filepaths)
+
+
 
         # create a file where 20% of the head is cutoff
         needle_1_filename = helper.get_file_name(filepaths[0])
@@ -126,8 +132,15 @@ class NIHTestObjectSimilarity(BaseTest):
 
         needle_paths += [needle_9_filepath]
 
-
-        # create a file that TODO: Create the 10th needle
+        # create a file that lacks the first and last 20 %
+        needle_10_filename = helper.get_file_name(filepaths[8])
+        needle_10_filepath = target_path + "/_needle10_" + needle_10_filename
+        tenth_needle_stage1 = file_manipulation.end_side_cutting(filepaths[8],20)
+        tenth_needle_stage2 = file_manipulation.front_side_cutting_byte(tenth_needle_stage1, 20)
+        f = open(needle_10_filepath, "wb")
+        f.write(tenth_needle_stage2)
+        f.close()
+        needle_paths += [needle_10_filepath]
 
         return needle_paths
 
@@ -153,6 +166,7 @@ class NIHTestObjectSimilarity(BaseTest):
             algorithm_instance = helper.get_algorithm(i)
             filter = algorithm_instance.get_filter(filter_directory_path)
             filter_len = len(filter)
+            #testrun_tb = [["needle type", i]]
             testrun_tb = [["needle type", i]]
 
             for elem in needle_files_path_list:
@@ -163,37 +177,46 @@ class NIHTestObjectSimilarity(BaseTest):
                 needle_number = re.search(r'\d+', needle_filename).group()
 
                 # this is the original name of the file that was manipulated into a needle
-                testfile_name_raw = re.search(r'(\d+)\D+$', needle_filename).group(1)
-                print(testfile_name_raw)
+                testfile_name_raw =  needle_filename.partition(needle_number + "_")[2] #re.search(r'(\d+)\D+$', needle_filename).group(1)
+                #print(testfile_name_raw)
 
-                results_dict = algorithm_instance.compare_file_against_filter(filter, elem)
+                # TODO: this abomination needs to be fixed, mrshcfs
+                if i == "MRSHCF":
+                    results_dict = algorithm_instance.compare_file_against_filter(filter_directory_path, elem)
+                else:
+                    results_dict = algorithm_instance.compare_file_against_filter(filter, elem)
 
                 # The highest matching values are considered true positives
                 max_keys = [k for k, v in results_dict.items() if v == max(results_dict.values())]
-                print(max_keys)
+                #print(max_keys)
                 filesize = helper.getfilesize(elem)
 
                 if testfile_name_raw in max_keys and not all(value == 0 for value in results_dict.values()):
-                    TP = 1
-                    FP = len(max_keys) - 1
-                    TN = filter_len - TP - FP
-                    FN = 0
+                    success = 1
+                    #TP = 1
+                    #FP = len(max_keys) - 1
+                    #TN = filter_len - TP - FP
+                    #FN = 0
+
                     # covers the case that all files match with 0
                 elif all(value == 0 for value in results_dict.values()) == True:
-                    TP = "-"
-                    FP = "-"
-                    TN = "-"
-                    FN = "-"
+                    success = 0
+                    #TP = "-"
+                    #FP = "-"
+                    #TN = "-"
+                    #FN = "-"
                 else:
-                    TP = 0
-                    FP = len(max_keys)
-                    FN = 1
-                    TN = filter_len - FN - FP
+                    success = 0
+                    #TP = 0
+                    #FP = len(max_keys)
+                    #FN = 1
+                    #TN = filter_len - FN - FP
 
 
-                RATES = "TP: {}, FP: {}, TN: {}, FN: {}".format(TP, FP, TN, FN)
+                #RATES = "TP: {}, FP: {}, TN: {}, FN: {}".format(TP, FP, TN, FN)
 
-                testrun_tb.append([needle_number,RATES])
+                #testrun_tb.append([needle_number,RATES])
+                testrun_tb.append([needle_number, success])
 
             res_df = helper.get_dataframe(testrun_tb)
             df_list += [res_df]
@@ -207,10 +230,22 @@ if __name__ == '__main__':
     test_instance = NIHTestObjectSimilarity()
     test_files = "../../testdata/pdf"
     filter_dir = "../../../t5"
-    algorithms = ["TLSH", "SSDEEP"]
-    #needles = test_instance.create_testdata(test_files, target_dir)
-    results = test_instance.test(algorithms, test_files , filter_dir)
-    print(tabulate(results, headers='keys', tablefmt='psql'))
+    algorithms = ["TLSH", "SSDEEP","MRSHCF"]
+
+    results_list = []
+
+    for _ in range(10):
+        result = test_instance.test(algorithms, test_files , filter_dir)
+        results_list += [result]
+        #print(tabulate(result, headers='keys', tablefmt='psql'))
+
+    cc = pd.concat(results_list)
+    gp = cc.groupby(["needle type"])[algorithms].sum()
+    print(tabulate(gp, headers='keys', tablefmt='psql'))
+
+    
+    
+
 
     #file2 = "../../testdata/20220207-185714_needle_in_the_haystack/random_57"
 

@@ -255,6 +255,21 @@ def front_side_cutting(filepath, percentage):
     return byt
 
     # TODO: check wether the remaining file has the right byte size
+def front_side_cutting_byte(bytes_obj, percentage):
+    '''
+     cuts off a certain percentage from the tail of a byte object
+
+    :param bytes_obj:
+    :param percentage:
+
+    :return byt: the bytes of the file - cutoff
+    '''
+
+    filesize = len(bytes_obj)
+    cutoff = int((percentage * filesize) / 100.0)
+    return bytes_obj[cutoff:]
+
+
 
 def random_byte_generation(size):
     '''generates a random set of bytes
@@ -457,3 +472,17 @@ if __name__ == '__main__':
     #byt1 ,byt2 = common_block_insertion(filePath1, filePath2, chunk_filePath, 1600)
 
 
+def get_rand_chunk_of_ext(ext, chunk_size):
+    '''given a extension, this method select a specified amount of bytes from a
+    file with that extension
+
+    :param ext:
+    :return:
+    '''
+    # chunkfile is the file that will be inserted
+    for file in os.listdir("../../testdata/filetype_testfiles"):
+        if file.endswith(ext):
+            chunkfile_path = os.path.join("../../testdata/filetype_testfiles", file)
+
+    rand_chunk_ext = getrandchunk(chunkfile_path,chunk_size)
+    return rand_chunk_ext

@@ -487,11 +487,43 @@ class MRSHCF(Algorithm):
         output = self.output_cleaner(output_raw)
         return output
 
+    def get_filter(self, directory_path):
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
+        os.system("./mrsh-cf/mrsh_cuckoo.exe -f {} -g".format(directory_path))
 
 
-    # compares a file from the t5-filter against a filter of all t5 files
-    def compare_t5_file_against_filter_console(self, file):
-        os.system("./ALGORITHMEN/mrsh_cuckoo.exe -s ./t5 -c ./t5/{}".format(file))
+        # TODO: fix this nasty work around, as filter a list of lists is expected by NIHTestObjectSimilarity()
+        filter_placeholder = []
+        files = os.listdir(directory_path)
+        for file in files:
+            filter_placeholder += [1]
+
+        return filter_placeholder
+
+    def compare_file_against_filter(self, directory_path, filepath):
+
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
+
+        cmd = ["./mrsh-cf/mrsh_cuckoo.exe", "-f", filepath, "-c", directory_path]
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8')
+        output_itr = iter(proc.splitlines())
+
+        result_dict = {}
+
+        for line in output_itr:
+            if "Filter Generation time" in line:
+                pass
+            else:
+                filename = str(self.output_cleaner(line).get("inputfile"))
+                chunks_detected = str(self.output_cleaner(line).get("chunks_detected"))
+                total_chunks = str(self.output_cleaner(line).get("total_chunks"))
+                sim_score = (int(chunks_detected) / int(total_chunks)) * 100
+                result_dict[filename] = sim_score
+
+        return result_dict
+
+
+
 
     def output_cleaner_file_against_filter(self, output_string):
         # The mrshcf output follows the following format when compar a file against itself:  Filter Generation time is1.61256e+09 seconds . ./t5/000012.pdf      Total Chunks: 54	 Chunks Detected: 54
@@ -516,7 +548,7 @@ class MRSHCF(Algorithm):
     def compare_file_against_folder_console_debug(self, file, folder):
         t5_file = file
         res = subprocess.run(
-            ["./ALGORITHMEN/mrsh_cuckoo.exe", "-f", t5_file, "-c", folder],
+            ["./mrsh-cf/mrsh_cuckoo.exe", "-f", t5_file, "-c", folder],
             # ["./mrsh_cuckoo.exe", "-s", "t5/", "-c", t5_file ],
             stdout=subprocess.PIPE,
             universal_newlines=True).stdout
@@ -530,7 +562,7 @@ class MRSHCF(Algorithm):
             chunks_detected = str(self.output_cleaner_file_against_filter(line).get("chunks_detected"))
             total_chunks = str(self.output_cleaner_file_against_filter(line).get("total_chunks"))
             chunks_detected_in_prc = str(math.trunc(round((int(chunks_detected) / int(total_chunks)) * 100)))
-            thing += filename + ",      Total Chunks:  100,     Chunks Detected: " + chunks_detected_in_prc + "\n"
+            thing += filename +  chunks_detected_in_prc + "\n"
 
         return thing
 
@@ -539,6 +571,8 @@ if __name__ == '__main__':
     filePath1 = "../../testdata/test_file5"
     filePath2 = "../../testdata/test_file5_short"
     chunk_filePath = "../../testdata/test_file3"
+    t5_dir = "../../../t5"
+    t5_test_file = "../../testdata/filetype_testfiles/PDF_TESTFILE.pdf"
 
     #ssdeep_instance = SSDEEP()
     #ssdeep_instance.compare_file_against_file(filePath1, filePath2)
@@ -546,9 +580,16 @@ if __name__ == '__main__':
     #res  = ssdeep_instance.compare_file_against_filter(filter, filePath1)
     #pprint.pprint(res)
 
-    tlsh_instance = TLSH()
-    filter = tlsh_instance.get_filter("../../../t5")
-    tlsh_instance.compare_file_against_filter(filter, filePath2)
+    #tlsh_instance = TLSH()
+    #filter = tlsh_instance.get_filter("../../../t5")
+    #hash_test = tlsh_instance.get_hash("../../testdata/testfiles_efficiency/testfile_1GB_random")
+    #print(hash_test)
+    #tlsh_instance.compare_file_against_filter(filter, filePath2)
+
+    mrsh_instance = MRSHCF()
+
+    rest = mrsh_instance.compare_file_against_filter("../../../t5/000001.doc","../../../t5")
+    #print(rest)
 
 
 
