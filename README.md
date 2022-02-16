@@ -139,6 +139,8 @@ Usable Algorithms are:
   - beta state - documentation will follow soon.
 - `SimHash` (Python library) 
   - beta state - documentation will follow soon.
+- `FbHash` (Executable) 
+  - beta state - documentation will follow soon.
 
 ### Installation of the Algorithms
 
