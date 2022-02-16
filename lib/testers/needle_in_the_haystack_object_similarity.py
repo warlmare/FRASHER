@@ -154,7 +154,7 @@ class NIHTestObjectSimilarity(BaseTest):
         :param algorithms: the algorithms that should be tested; list with strings.
         :param testfiles_path: path to the files that will be manipulated as needles
         :param filter_directory_path:  path to directory which contains the filter files
-        :return: dataframe with results. TODO: syntax ? FP TP TN FN
+        :return: dataframe with results.
         '''
 
         df_list = []
@@ -168,7 +168,7 @@ class NIHTestObjectSimilarity(BaseTest):
             filter_len = len(filter)
             #testrun_tb = [["needle type", i]]
             testrun_tb = [["needle type", i]]
-
+            # TODO: needle and original file need to swap places at run time
             for elem in needle_files_path_list:
 
                 needle_filename = helper.get_file_name(elem)
@@ -228,7 +228,7 @@ class NIHTestObjectSimilarity(BaseTest):
 
 if __name__ == '__main__':
     test_instance = NIHTestObjectSimilarity()
-    test_files = "../../testdata/pdf"
+    test_files = "../../testdata/gif"
     filter_dir = "../../../t5"
     algorithms = ["TLSH", "SSDEEP","MRSHCF"]
 
