@@ -16,6 +16,8 @@ import os
 import errno
 import pathlib
 import pprint
+import fuzzyhashlib
+
 
 
 # TODO: Function that pulls all the algorithms/ checks their conditions and their checkups
