@@ -108,7 +108,7 @@ if __name__ == '__main__':
     #testrun = testinstance.test("tlsh", "random", testfile,5)
     #print(tabulate(testrun)) # TODO: this needs to be outsourced into a log module
 
-    algorithms = ["SSDEEP", "TLSH", "MRSHCF"]
+    algorithms = ["SSDEEP", "TLSH", "MRSHCF", "SDHASH"]
 
     result_list = []
     directory_path = "../../testdata/testfiles_fragment_detection"
@@ -123,7 +123,7 @@ if __name__ == '__main__':
     print(tabulate(results, headers='keys', tablefmt='psql'))
     results.to_csv('../../results/fragment_detection_65KB.csv')
     data = pd.read_csv('../../results/fragment_detection_65KB.csv', index_col=0)
-    plot1 = data.plot(x="cutoff size %", y=["SSDEEP", "TLSH", "MRSHCF"])
+    plot1 = data.plot(x="cutoff size %", y=["SSDEEP", "TLSH", "MRSHCF", "SDHASH"])
     # plot1.invert_xaxis()
     plot1.set_ylabel("Similarity Score")
     plot1.set_xlabel("Cutoff size (%)")

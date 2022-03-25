@@ -16,7 +16,6 @@ import os
 import errno
 import pathlib
 import pprint
-import fuzzyhashlib
 
 
 
@@ -145,6 +144,75 @@ class SSDEEP(Algorithm):
             results[filename] = score
 
         return results
+
+class SDHASH(Algorithm):
+
+    def compare_file_against_file(self, file_a, file_b):
+        '''compares two files and returns their similarity
+
+        :param file_a: filepath
+        :param file_b: filepath
+        :return: similarity score : int
+        '''
+
+        os.system("./sdhash/sdhash -r {} -o sdhash/hash_a".format(file_a))
+        os.system("./sdhash/sdhash -r {} -o sdhash/hash_b".format(file_b))
+
+        result = subprocess.getoutput("./sdhash/sdhash -c sdhash/hash_b.sdbf sdhash/hash_a.sdbf")
+
+        try:
+            comparison_output = self.__output_cleaner(result)
+            similarity_score = int(comparison_output.get("similarity_score"))
+            print(similarity_score)
+        except TypeError:
+            similarity_score = 0
+
+        os.remove("sdhash/hash_a.sdbf")
+        os.remove("sdhash/hash_b.sdbf")
+
+        return similarity_score
+
+
+    def __output_cleaner(self, output_raw):
+        '''
+        tokenizes a string
+        :return: dict with token <> string
+        '''
+        string_separated = output_raw.split("|")
+        tokens = ["first_file", "second_file", "similarity_score"]
+        output_clean = dict(zip(tokens, string_separated))
+        return output_clean
+
+class FBHASH(Algorithm):
+
+    def compare_file_against_file(self, file_a, file_b):
+        '''compares two files and returns their similarity
+
+        :param file_a: filepath
+        :param file_b: filepath
+        :return: similarity score : int
+        '''
+
+        os.system("./sdhash/sdhash -r {} -o sdhash/hash_a".format(file_a))
+        os.system("./sdhash/sdhash -r {} -o sdhash/hash_b".format(file_b))
+
+        result = subprocess.getoutput("./sdhash/sdhash -c sdhash/hash_b.sdbf sdhash/hash_a.sdbf")
+
+        try:
+            comparison_output = self.__output_cleaner(result)
+            similarity_score = int(comparison_output.get("similarity_score"))
+            print(similarity_score)
+        except TypeError:
+            similarity_score = 0
+
+        os.remove("sdhash/hash_a.sdbf")
+        os.remove("sdhash/hash_b.sdbf")
+
+        return similarity_score
+
+
+
+
 
 class TLSH(Algorithm):
     def get_hash(self, filepath: str) -> str:
@@ -571,8 +639,8 @@ class MRSHCF(Algorithm):
 
 if __name__ == '__main__':
     filePath1 = "../../testdata/test_file5"
-    filePath2 = "../../testdata/test_file5_short"
-    chunk_filePath = "../../testdata/test_file3"
+    filePath2 = "../../testdata/gif/004289.gif"
+    chunk_filePath = "../../testdata/text/000096.text"
     t5_dir = "../../../t5"
     t5_test_file = "../../testdata/filetype_testfiles/PDF_TESTFILE.pdf"
 
@@ -592,6 +660,12 @@ if __name__ == '__main__':
 
     rest = mrsh_instance.compare_file_against_filter("../../../t5/000001.doc","../../../t5")
     #print(rest)
+
+    sdhash_instance = SDHASH()
+    result = sdhash_instance.compare_file_against_file(filePath2, chunk_filePath)
+    print(result)
+
+
 
 
 
