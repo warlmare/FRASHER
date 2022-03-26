@@ -103,9 +103,8 @@ class AlignmentRobustnessTest(BaseTest):
 
 if __name__ == '__main__':
     testinstance = AlignmentRobustnessTest()
-    testfile = "../../testdata/testfile_1000_random"
 
-    algorithms = ["SSDEEP", "TLSH", "MRSHCF", "SDHASH"]
+    algorithms = ["SSDEEP", "TLSH", "MRSHCF", "SDHASH", "FBHASH"]
     #results = testinstance.test(algorithms, testfile, 109749, 5000, "fixed")
 
     #results_tail = testinstance.test(algorithms, testfile, 500, 10, "percentage_tail")
@@ -127,7 +126,7 @@ if __name__ == '__main__':
     print(tabulate(results, headers='keys', tablefmt='psql'))
     results.to_csv('../../results/alignment_robustness_head_30Kb.csv')
     data = pd.read_csv('../../results/alignment_robustness_head_30Kb.csv', index_col=0)
-    plot1 = data.plot(x="blocksize (%)", y=["SSDEEP", "TLSH", "MRSHCF", "SDHASH"])
+    plot1 = data.plot(x="blocksize (%)", y=["SSDEEP", "TLSH", "MRSHCF", "SDHASH", "FBHASH"])
     # plot1.invert_xaxis()
     plot1.set_ylabel("Similarity Score")
     plot1.set_xlabel("Size of added block (%)")

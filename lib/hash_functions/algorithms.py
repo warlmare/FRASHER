@@ -163,7 +163,6 @@ class SDHASH(Algorithm):
         try:
             comparison_output = self.__output_cleaner(result)
             similarity_score = int(comparison_output.get("similarity_score"))
-            print(similarity_score)
         except TypeError:
             similarity_score = 0
 
@@ -193,24 +192,31 @@ class FBHASH(Algorithm):
         :return: similarity score : int
         '''
 
-        os.system("./sdhash/sdhash -r {} -o sdhash/hash_a".format(file_a))
-        os.system("./sdhash/sdhash -r {} -o sdhash/hash_b".format(file_b))
+        os.system("java -cp FbHash/bin/ FbHash.Fbhash -fd {} -o FbHash/hash_a".format(file_a))
+        os.system("java -cp FbHash/bin/ FbHash.Fbhash -fd {} -o FbHash/hash_b".format(file_b))
 
-        result = subprocess.getoutput("./sdhash/sdhash -c sdhash/hash_b.sdbf sdhash/hash_a.sdbf")
+        result = subprocess.getoutput("java -cp FbHash/bin/ FbHash.Fbhash -c FbHash/hash_a FbHash/hash_b")
 
         try:
             comparison_output = self.__output_cleaner(result)
             similarity_score = int(comparison_output.get("similarity_score"))
-            print(similarity_score)
         except TypeError:
             similarity_score = 0
 
-        os.remove("sdhash/hash_a.sdbf")
-        os.remove("sdhash/hash_b.sdbf")
-
+        os.remove("FbHash/hash_a")
+        os.remove("FbHash/hash_b")
+        print("fbhash sim score: ", similarity_score)
         return similarity_score
 
-
+    def __output_cleaner(self, output_raw):
+        '''
+        tokenizes a string
+        :return: dict with token <> string
+        '''
+        string_separated = output_raw.split("|")
+        tokens = ["first_file", "second_file", "similarity_score"]
+        output_clean = dict(zip(tokens, string_separated))
+        return output_clean
 
 
 
@@ -656,17 +662,21 @@ if __name__ == '__main__':
     #print(hash_test)
     #tlsh_instance.compare_file_against_filter(filter, filePath2)
 
-    mrsh_instance = MRSHCF()
+    #mrsh_instance = MRSHCF()
 
-    rest = mrsh_instance.compare_file_against_filter("../../../t5/000001.doc","../../../t5")
+    #rest = mrsh_instance.compare_file_against_filter("../../../t5/000001.doc","../../../t5")
     #print(rest)
 
-    sdhash_instance = SDHASH()
-    result = sdhash_instance.compare_file_against_file(filePath2, chunk_filePath)
+    #sdhash_instance = SDHASH()
+    #result = sdhash_instance.compare_file_against_file(filePath2, chunk_filePath)
+    #print(result)
+
+    #os.system("java -cp FbHash/bin/ FbHash.Fbhash") # -fd {} -o Fbhash/hash_a".format(filePath1))
+
+
+    fbhash_instance = FBHASH()
+    result = fbhash_instance.compare_file_against_file(filePath2, filePath2)
     print(result)
-
-
-
 
 
 
