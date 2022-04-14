@@ -218,6 +218,66 @@ class FBHASH(Algorithm):
         output_clean = dict(zip(tokens, string_separated))
         return output_clean
 
+class MRSHV2(Algorithm):
+
+    def compare_file_against_file(self, file_a, file_b):
+        '''compares two files and returns their similarity
+
+        :param file_a: filepath
+        :param file_b: filepath
+        :return: similarity score : int
+        '''
+
+        result = subprocess.getoutput("./mrsh-v2/mrsh -f -c {} {}".format(file_a, file_b))
+
+        try:
+            comparison_output = self.__output_cleaner(result)
+            similarity_score = int(comparison_output.get("similarity_score"))
+        except TypeError:
+            similarity_score = 0
+
+        print("mrsh-v2 similarity score: ", similarity_score)
+        return similarity_score
+
+    def __output_cleaner(self, output_raw):
+        '''
+        tokenizes a string
+        :return: dict with token <> string
+        '''
+        string_separated = output_raw.split("|")
+        tokens = ["first_file", "second_file", "similarity_score"]
+        output_clean = dict(zip(tokens, string_separated))
+        return output_clean
+
+    def get_filter(self, directory_path):
+
+        # TODO: fix this nasty work around, as filter a list of lists is expected by NIHTestObjectSimilarity()
+        filter_placeholder = []
+        files = os.listdir(directory_path)
+        for file in files:
+            filter_placeholder += [1]
+
+        return filter_placeholder
+
+
+    def compare_file_against_filter(self, filepath, directory_path):
+
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
+        # TODO: mrsh-v2 would normally need a "/*" character behind dir-path, but this does not work here, slower now
+        cmd = ["./mrsh-v2/mrsh", "-f", "-c", filepath, directory_path]
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8')
+        output_itr = iter(proc.splitlines())
+
+        result_dict = {}
+
+        for line in output_itr:
+            filename = str(self.__output_cleaner(line).get("second_file"))
+            sim_score = int(self.__output_cleaner(line).get("similarity_score"))
+            result_dict[filename] = sim_score
+
+        return result_dict
+
+
 
 
 class TLSH(Algorithm):
@@ -674,11 +734,16 @@ if __name__ == '__main__':
     #os.system("java -cp FbHash/bin/ FbHash.Fbhash") # -fd {} -o Fbhash/hash_a".format(filePath1))
 
 
-    fbhash_instance = FBHASH()
-    result = fbhash_instance.compare_file_against_file(filePath2, filePath2)
-    print(result)
+    #fbhash_instance = FBHASH()
+    #result = fbhash_instance.compare_file_against_file(filePath2, filePath2)
+    #print(result)
 
+    mrsh_v2_instance = MRSHV2()
+    #result2 = mrsh_v2_instance.compare_file_against_file(filePath2,filePath2)
+    #print(result2)
 
+    rest = mrsh_v2_instance.compare_file_against_filter("../../../t5/000001.doc","../../../t5")
+    print(rest)
 
 
 

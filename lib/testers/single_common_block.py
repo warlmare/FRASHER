@@ -1,3 +1,6 @@
+import sys
+sys.path.append('~/FRASH2_0')
+
 from base_test import BaseTest
 from lib.helpers import file_manipulation
 from lib.helpers import helper
@@ -131,21 +134,21 @@ if __name__ == '__main__':
     testinstance = SingleCommonBlock()
 
 
-    filePath1 = "../../testdata/512/test_file1_2048"
-    filePath2 = "../../testdata/512/test_file2_2048"
+    filePath1 = "../../testdata/2048/test_file1_2048"
+    filePath2 = "../../testdata/2048/test_file2_2048"
     chunk_filePath = "../../testdata/testfile1"
 
     # for every filesize there needs to be one single_common_block_correlation_test
     # TODO: needs to be realized for the filesizes = [512,2048,8192] for each filesize 5 runs and the values are averaged
 
-    algorithms = ["SSDEEP","TLSH", "MRSHCF", "SDHASH", "FBHASH"]
+    algorithms = ["SSDEEP","TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"]
     results = testinstance.test(algorithms, filePath1, filePath2, chunk_filePath)
     print(tabulate(results, headers='keys', tablefmt='psql'))
     results.to_csv('../../results/single_common_block_2048.csv')
 
     data = pd.read_csv('../../results/single_common_block_2048.csv', index_col=0)
     data["fragment size (bytes)"] = data["fragment size (bytes)"].div(1000)
-    plot1 = data.plot(x="fragment size (bytes)", y=["SSDEEP", "TLSH", "MRSHCF", "SDHASH", "FBHASH"])
+    plot1 = data.plot(x="fragment size (bytes)", y=["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"])
     plot1.invert_xaxis()
     plot1.set_ylabel("Similarity Score")
     plot1.set_xlabel("Fragment Size (KB)")
