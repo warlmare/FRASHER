@@ -121,17 +121,17 @@ if __name__ == '__main__':
     for subdir, dirs, files in os.walk(directory_path):
         for file in files:
             filepath = directory_path + "/" + file
-            results_head = testinstance.test(algorithms, filepath, 500, 10, "percentage_head")
+            results_head = testinstance.test(algorithms, filepath, 500, 10, "percentage_tail")
             result_list += [results_head]
 
     results = reduce(pd.DataFrame.add, result_list) / len(result_list)
     print(tabulate(results, headers='keys', tablefmt='psql'))
-    results.to_csv(os.path.join(dirname,'../../results/alignment_robustness_head_30Kb_complete.csv'))
-    data = pd.read_csv(os.path.join(dirname,'../../results/alignment_robustness_head_30Kb_complete.csv'), index_col=0)
+    results.to_csv(os.path.join(dirname,'../../results/alignment_robustness_tail_30Kb_complete.csv'))
+    data = pd.read_csv(os.path.join(dirname,'../../results/alignment_robustness_tail_30Kb_complete.csv'), index_col=0)
     plot1 = data.plot(x="blocksize (%)", y=["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"])
     # plot1.invert_xaxis()
     plot1.set_ylabel("Similarity Score")
     plot1.set_xlabel("Size of added block (%)")
-    plot1.set_title("Alignment Robustness Head Test (30 KB files)")
-    plt.savefig(os.path.join(dirname,"../../results/alignment_robustness_head_30Kb_complete.png"), dpi=300)
+    plot1.set_title("Alignment Robustness Tail Test (30 KB files)")
+    plt.savefig(os.path.join(dirname,"../../results/alignment_robustness_tail_30Kb_complete.png"), dpi=300)
     plt.show()
