@@ -1,7 +1,5 @@
-import sys
-sys.path.append('~/FRASH2_0')
 
-from base_test import BaseTest
+from lib.testers.base_test import BaseTest
 from lib.helpers import file_manipulation
 from lib.helpers import helper
 from lib.hash_functions import algorithms
@@ -11,7 +9,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from functools import reduce
 import seaborn as sns
+import os
 
+dirname = os.path.dirname(__file__)
 
 class SingleCommonBlock(BaseTest):
 
@@ -46,8 +46,8 @@ class SingleCommonBlock(BaseTest):
 
             #The chunk byte is cut off at the end turn after turn ...
             chunk_byt = chunk_byt[:chunksize]
-            first_new_file_path = target_path + "/_first_file_" + str(chunksize)
-            second_new_file_path = target_path + "/_second_file_" + str(chunksize)
+            first_new_file_path = os.path.join(dirname,target_path + "/_first_file_" + str(chunksize))
+            second_new_file_path = os.path.join(dirname,target_path + "/_second_file_" + str(chunksize))
 
             # first_new_file and second_new_file are bytestreams of the files to be written to disk
             first_new_file, second_new_file = file_manipulation.common_block_insertion_byt(
@@ -134,9 +134,10 @@ if __name__ == '__main__':
     testinstance = SingleCommonBlock()
 
 
-    filePath1 = "../../testdata/2048/test_file1_2048"
-    filePath2 = "../../testdata/2048/test_file2_2048"
-    chunk_filePath = "../../testdata/testfile1"
+
+    filePath1 = os.path.join(dirname, "../../testdata/2048/test_file1_2048")
+    filePath2 = os.path.join(dirname, "../../testdata/2048/test_file2_2048")
+    chunk_filePath = os.path.join(dirname, "../../testdata/testfile1")
 
     # for every filesize there needs to be one single_common_block_correlation_test
     # TODO: needs to be realized for the filesizes = [512,2048,8192] for each filesize 5 runs and the values are averaged
@@ -144,16 +145,16 @@ if __name__ == '__main__':
     algorithms = ["SSDEEP","TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"]
     results = testinstance.test(algorithms, filePath1, filePath2, chunk_filePath)
     print(tabulate(results, headers='keys', tablefmt='psql'))
-    results.to_csv('../../results/single_common_block_2048.csv')
+    results.to_csv(os.path.join(dirname, '../../results/single_common_block_2048_complete.csv'))
 
-    data = pd.read_csv('../../results/single_common_block_2048.csv', index_col=0)
+    data = pd.read_csv(os.path.join(dirname, '../../results/single_common_block_2048_complete.csv'), index_col=0)
     data["fragment size (bytes)"] = data["fragment size (bytes)"].div(1000)
     plot1 = data.plot(x="fragment size (bytes)", y=["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"])
     plot1.invert_xaxis()
     plot1.set_ylabel("Similarity Score")
     plot1.set_xlabel("Fragment Size (KB)")
     plot1.set_title("Single Common Block Test (2048)")
-    plt.savefig("../../results/single_common_block_test_2048.png" , dpi=300)
+    plt.savefig(os.path.join(dirname, "../../results/single_common_block_test_2048_complete.png"), dpi=300)
     plt.show()
 
 

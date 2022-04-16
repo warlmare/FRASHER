@@ -192,6 +192,7 @@ class FBHASH(Algorithm):
         :return: similarity score : int
         '''
 
+        #TODO: right now one cannot run multiple instances in paralell since it overrides the hashes.
         os.system("java -cp FbHash/bin/ FbHash.Fbhash -fd {} -o FbHash/hash_a".format(file_a))
         os.system("java -cp FbHash/bin/ FbHash.Fbhash -fd {} -o FbHash/hash_b".format(file_b))
 

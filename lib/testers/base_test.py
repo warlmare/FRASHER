@@ -6,6 +6,8 @@ from lib.helpers import helper
 from lib.hash_functions import algorithms
 import tabulate
 
+dirname = os.path.dirname(__file__)
+
 class BaseTest:
 
     def create_testdata(self, *args):
@@ -35,7 +37,7 @@ class BaseTest:
 
         timestr = helper.gettimestring()
         foldername = timestr + "_" + testname
-        path = "../../testdata/" + foldername
+        path = os.path.join(dirname,"../../testdata/" + foldername)
 
         try:
             os.mkdir(path)

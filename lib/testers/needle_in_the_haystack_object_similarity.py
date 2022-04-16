@@ -230,7 +230,7 @@ if __name__ == '__main__':
     test_instance = NIHTestObjectSimilarity()
     test_files = "../../testdata/gif"
     filter_dir = "../../../t5"
-    algorithms = ["TLSH", "SSDEEP","MRSHCF"]
+    algorithms = ["TLSH", "SSDEEP","MRSHCF","MRSHV2"]
 
     results_list = []
 

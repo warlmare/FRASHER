@@ -1,4 +1,4 @@
-from base_test import BaseTest
+from lib.testers.base_test import BaseTest
 from lib.helpers import file_manipulation
 from lib.helpers import helper
 from lib.hash_functions import algorithms
@@ -10,6 +10,7 @@ from random import randint
 import matplotlib.pyplot as plt
 import os
 
+dirname = os.path.dirname(__file__)
 
 class FragmentDetectionTest(BaseTest):
 
@@ -30,7 +31,7 @@ class FragmentDetectionTest(BaseTest):
 
         while cutoff < 100:
 
-            new_file_path = target_path + "/" + mode + "_" + str(cutoff)
+            new_file_path = os.path.join(dirname, target_path + "/" + mode + "_" + str(cutoff))
             if mode == "random":
                 rand_ch = randint(0, 1)
                 if rand_ch == 0:
@@ -103,15 +104,15 @@ class FragmentDetectionTest(BaseTest):
 if __name__ == '__main__':
     testinstance = FragmentDetectionTest()
 
-    testfile = "../../testdata/testfiles_alignment_robustness/30000_8"
+    testfile = os.path.join(dirname,"../../testdata/testfiles_alignment_robustness/30000_8")
 
     #testrun = testinstance.test("tlsh", "random", testfile,5)
     #print(tabulate(testrun)) # TODO: this needs to be outsourced into a log module
 
-    algorithms = ["SSDEEP", "TLSH", "MRSHCF", "SDHASH", "FBHASH"]
+    algorithms = ["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"]
 
     result_list = []
-    directory_path = "../../testdata/testfiles_fragment_detection"
+    directory_path = os.path.join(dirname,"../../testdata/testfiles_fragment_detection")
     file_manipulation.get_random_files(directory_path, 65000, 10)
 
     for subdir, dirs, files in os.walk(directory_path):
@@ -121,14 +122,14 @@ if __name__ == '__main__':
 
     results = reduce(pd.DataFrame.add, result_list) / len(result_list)
     print(tabulate(results, headers='keys', tablefmt='psql'))
-    results.to_csv('../../results/fragment_detection_65KB.csv')
-    data = pd.read_csv('../../results/fragment_detection_65KB.csv', index_col=0)
-    plot1 = data.plot(x="cutoff size %", y=["SSDEEP", "TLSH", "MRSHCF", "SDHASH", "FBHASH"])
+    results.to_csv(os.path.join(dirname,'../../results/fragment_detection_65KB_complete.csv'))
+    data = pd.read_csv(os.path.join(dirname,'../../results/fragment_detection_65KB.csv'), index_col=0)
+    plot1 = data.plot(x="cutoff size %", y=["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"])
     # plot1.invert_xaxis()
     plot1.set_ylabel("Similarity Score")
     plot1.set_xlabel("Cutoff size (%)")
     plot1.set_title("Fragment Detection Test (65 KB files)")
-    plt.savefig("../../results/fragment_detection_65KB.png", dpi=300)
+    plt.savefig(os.path.join(dirname,"../../results/fragment_detection_65KB.png"), dpi=300)
     plt.show()
 
 

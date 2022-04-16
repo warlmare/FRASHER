@@ -1,4 +1,4 @@
-from base_test import BaseTest
+from lib.testers.base_test import BaseTest
 from lib.helpers import file_manipulation
 from lib.helpers import helper
 from lib.hash_functions import algorithms
@@ -8,6 +8,8 @@ from functools import reduce
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
+
+dirname = os.path.dirname(__file__)
 
 class AlignmentRobustnessTest(BaseTest):
 
@@ -29,7 +31,7 @@ class AlignmentRobustnessTest(BaseTest):
         while current_blocklength < max_blocklength:
             current_blocklength += stepsize
             filesize = helper.getfilesize(filepath)
-            new_file_path = target_path + "/" + mode + "_" + str(current_blocklength)
+            new_file_path = os.path.join(dirname, target_path + "/" + mode + "_" + str(current_blocklength))
 
             if mode == "fixed":
                 #TODO: this misses random tail insert
@@ -112,7 +114,7 @@ if __name__ == '__main__':
     #results_head = testinstance.test(algorithms, testfile, 500, 10, "percentage_head")
     #print(tabulate(results_head, headers='keys', tablefmt='psql'))
 
-    directory_path = "../../testdata/testfiles_alignment_robustness"
+    directory_path = os.path.join(dirname,"../../testdata/testfiles_alignment_robustness")
     file_manipulation.get_random_files(directory_path, 30000, 10)
     result_list = []
 
@@ -124,12 +126,12 @@ if __name__ == '__main__':
 
     results = reduce(pd.DataFrame.add, result_list) / len(result_list)
     print(tabulate(results, headers='keys', tablefmt='psql'))
-    results.to_csv('../../results/alignment_robustness_head_30Kb.csv')
-    data = pd.read_csv('../../results/alignment_robustness_head_30Kb.csv', index_col=0)
+    results.to_csv(os.path.join(dirname,'../../results/alignment_robustness_head_30Kb_complete.csv'))
+    data = pd.read_csv(os.path.join(dirname,'../../results/alignment_robustness_head_30Kb_complete.csv'), index_col=0)
     plot1 = data.plot(x="blocksize (%)", y=["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"])
     # plot1.invert_xaxis()
     plot1.set_ylabel("Similarity Score")
     plot1.set_xlabel("Size of added block (%)")
     plot1.set_title("Alignment Robustness Head Test (30 KB files)")
-    plt.savefig("../../results/alignment_robustness_head_30Kb.png", dpi=300)
+    plt.savefig(os.path.join(dirname,"../../results/alignment_robustness_head_30Kb_complete.png"), dpi=300)
     plt.show()
