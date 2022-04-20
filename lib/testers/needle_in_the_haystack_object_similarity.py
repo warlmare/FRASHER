@@ -232,7 +232,7 @@ if __name__ == '__main__':
     test_instance = NIHTestObjectSimilarity()
     test_files = "../../testdata/pdf"
     filter_dir = "../../../t5"
-    algorithms = ["MRSHV2", "TLSH"]#, "SSDEEP","MRSHCF"]
+    algorithms = ["MRSHV2", "TLSH", "SSDEEP", "MRSHCF"]
 
     results_list = []
 
@@ -251,10 +251,10 @@ if __name__ == '__main__':
 
     #file2 = "../../testdata/20220207-185714_needle_in_the_haystack/random_57"
 
-    mrshv2_instance = algorithms.MRSHV2()
-    filter = mrshv2_instance.get_filter(filter_dir)
+    #mrshv2_instance = algorithms.MRSHV2()
+    #filter = mrshv2_instance.get_filter(filter_dir)
 
-    compare_dict = mrshv2_instance.compare_file_against_filter("../../../t5/000001.doc", "../../../t5")
-    print(compare_dict)
+    #compare_dict = mrshv2_instance.compare_file_against_filter("../../../t5/000001.doc", "../../../t5")
+    #print(compare_dict)
     #test_instance.create_testdata("../../testdata/testfiles_alignment_robustness", "blib")
 

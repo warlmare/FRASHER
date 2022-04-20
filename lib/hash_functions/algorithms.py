@@ -199,17 +199,16 @@ class FBHASH(Algorithm):
         result = subprocess.getoutput("java -cp FbHash/bin/ FbHash.Fbhash -c FbHash/hash_a FbHash/hash_b")
 
         try:
-            comparison_output = self.__output_cleaner(result)
+            comparison_output = self.output_cleaner(result)
             similarity_score = int(comparison_output.get("similarity_score"))
         except TypeError:
             similarity_score = 0
 
         os.remove("FbHash/hash_a")
         os.remove("FbHash/hash_b")
-        print("fbhash sim score: ", similarity_score)
         return similarity_score
 
-    def __output_cleaner(self, output_raw):
+    def output_cleaner(self, output_raw):
         '''
         tokenizes a string
         :return: dict with token <> string
@@ -218,6 +217,42 @@ class FBHASH(Algorithm):
         tokens = ["first_file", "second_file", "similarity_score"]
         output_clean = dict(zip(tokens, string_separated))
         return output_clean
+
+    def get_filter(self, directory_path):
+
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
+        os.mkdir("/home/frieder/FRASH2_0/lib/hash_functions/FbHash/fbhash_t5")
+
+        # make yourself some coco cause dis shit is gonna take foreva ...
+        for file in os.listdir(directory_path):
+            os.system("java -cp FbHash/bin/ FbHash.Fbhash -fd {}/{} -o FbHash/fbhash_t5/{}".format(directory_path, file, file))
+
+        return directory_path
+
+
+    def compare_file_against_filter(self, filepath, directory_path):
+
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
+
+        os.system("java -cp FbHash/bin/ FbHash.Fbhash -fd {} -o FbHash/hash_a".format(filepath))
+
+        result_dict = {}
+
+        #os.system("java -cp FbHash/bin/ FbHash.Fbhash -fd {}/{} -o FbHash/hash_b".format(directory_path, file))
+        cmd =" -cp "+" FbHash/bin/ "+" FbHash.Fbhash "+" -c "+ str(filepath) + " FbHash/digests_t5.txt"
+
+        subprocess.call(['java'] + cmd.split())#.stdout.decode('utf-8')
+        #proc = subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8')
+        # output_itr = iter(proc.splitlines())
+        #
+        # for line in output_itr:
+        #     filename = str(self.output_cleaner(line).get("second_file"))
+        #     similarity_score = int(self.output_cleaner(line).get("similarity_score"))
+        #     print(similarity_score)
+        #
+        #     result_dict[filename] = similarity_score
+        #
+        # return result_dict
 
 class MRSHV2(Algorithm):
 
@@ -237,7 +272,6 @@ class MRSHV2(Algorithm):
         except TypeError:
             similarity_score = 0
 
-        print("mrsh-v2 similarity score: ", similarity_score)
         return similarity_score
 
     def __output_cleaner(self, output_raw):
@@ -553,6 +587,7 @@ class MRSHCF(Algorithm):
         :param file2: filepath
         :return: sim_score (Chunks Detected / Total Chunks) * 100 -> pre-decimal points
         '''
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
 
         comparison_output = self.compare_file_against_file_tokenized(file2, file1)
         chunks_total = comparison_output.get("total_chunks")
@@ -568,6 +603,7 @@ class MRSHCF(Algorithm):
         :param file1: filepath
         :param file2: filepath
         '''
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
         os.system("./mrsh-cf/mrsh_cuckoo.exe -f {} -c {}".format(file1, file2))
 
 
@@ -739,12 +775,13 @@ if __name__ == '__main__':
     #result = fbhash_instance.compare_file_against_file(filePath2, filePath2)
     #print(result)
 
-    mrsh_v2_instance = MRSHV2()
+    fbhash_instance = FBHASH()
     #result2 = mrsh_v2_instance.compare_file_against_file(filePath2,filePath2)
     #print(result2)
 
-    rest = mrsh_v2_instance.compare_file_against_filter("../../../t5/000001.doc","../../../t5")
-    print(rest)
+    #rest = fbhash_instance.compare_file_against_filter("../../../t5/000001.doc","../../../t5")
+    #print(rest)
+    fbhash_instance.compare_file_against_filter(chunk_filePath,"../../../t5")
 
 
 

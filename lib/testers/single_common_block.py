@@ -135,8 +135,8 @@ if __name__ == '__main__':
 
 
 
-    filePath1 = os.path.join(dirname, "../../testdata/2048/test_file1_2048")
-    filePath2 = os.path.join(dirname, "../../testdata/2048/test_file2_2048")
+    filePath1 = os.path.join(dirname, "../../testdata/512/test_file1_512")
+    filePath2 = os.path.join(dirname, "../../testdata/512/test_file2_512")
     chunk_filePath = os.path.join(dirname, "../../testdata/testfile1")
 
     # for every filesize there needs to be one single_common_block_correlation_test
@@ -145,16 +145,16 @@ if __name__ == '__main__':
     algorithms = ["SSDEEP","TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"]
     results = testinstance.test(algorithms, filePath1, filePath2, chunk_filePath)
     print(tabulate(results, headers='keys', tablefmt='psql'))
-    results.to_csv(os.path.join(dirname, '../../results/single_common_block_2048_complete.csv'))
+    results.to_csv(os.path.join(dirname, '../../results/single_common_block_512_complete.csv'))
 
-    data = pd.read_csv(os.path.join(dirname, '../../results/single_common_block_2048_complete.csv'), index_col=0)
+    data = pd.read_csv(os.path.join(dirname, '../../results/single_common_block_512_complete.csv'), index_col=0)
     data["fragment size (bytes)"] = data["fragment size (bytes)"].div(1000)
     plot1 = data.plot(x="fragment size (bytes)", y=["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"])
     plot1.invert_xaxis()
     plot1.set_ylabel("Similarity Score")
     plot1.set_xlabel("Fragment Size (KB)")
-    plot1.set_title("Single Common Block Test (2048)")
-    plt.savefig(os.path.join(dirname, "../../results/single_common_block_test_2048_complete.png"), dpi=300)
+    plot1.set_title("Single Common Block Test (512)")
+    plt.savefig(os.path.join(dirname, "../../results/single_common_block_test_512_complete.png"), dpi=300)
     plt.show()
 
 

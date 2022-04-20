@@ -81,8 +81,6 @@ class FragmentDetectionTest(BaseTest):
 
                 for x in range(5):
                     scores += [algorithm_instance.compare_file_against_file(
-
-
                                                                             filepath,
                                                                             elem)]
                 score = sum(scores) / len(scores)
