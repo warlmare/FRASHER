@@ -186,6 +186,8 @@ class NIHTestObjectSimilarity(BaseTest):
                 else:
                     results_dict = algorithm_instance.compare_file_against_filter(filter, elem)
 
+                #print(results_dict)
+
                 # The highest matching values are considered true positives
                 max_keys = [k for k, v in results_dict.items() if v == max(results_dict.values())]
                 #print(max_keys)
@@ -228,13 +230,13 @@ class NIHTestObjectSimilarity(BaseTest):
 
 if __name__ == '__main__':
     test_instance = NIHTestObjectSimilarity()
-    test_files = "../../testdata/gif"
+    test_files = "../../testdata/pdf"
     filter_dir = "../../../t5"
-    algorithms = ["TLSH", "SSDEEP","MRSHCF","MRSHV2"]
+    algorithms = ["MRSHV2", "TLSH"]#, "SSDEEP","MRSHCF"]
 
     results_list = []
 
-    for _ in range(10):
+    for _ in range(2):
         result = test_instance.test(algorithms, test_files , filter_dir)
         results_list += [result]
         #print(tabulate(result, headers='keys', tablefmt='psql'))
@@ -249,10 +251,10 @@ if __name__ == '__main__':
 
     #file2 = "../../testdata/20220207-185714_needle_in_the_haystack/random_57"
 
-    #tlsh_instance = algorithms.SSDEEP()
-    #filter = tlsh_instance.get_filter(test_dir)
-    #print(len(filter))
-    #compare_dict = tlsh_instance.compare_file_against_filter(filter, test_file)
-    #pprint.pprint(compare_dict)
+    mrshv2_instance = algorithms.MRSHV2()
+    filter = mrshv2_instance.get_filter(filter_dir)
+
+    compare_dict = mrshv2_instance.compare_file_against_filter("../../../t5/000001.doc", "../../../t5")
+    print(compare_dict)
     #test_instance.create_testdata("../../testdata/testfiles_alignment_robustness", "blib")
 

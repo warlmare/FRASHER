@@ -258,10 +258,10 @@ class MRSHV2(Algorithm):
         for file in files:
             filter_placeholder += [1]
 
-        return filter_placeholder
+        return directory_path
 
 
-    def compare_file_against_filter(self, filepath, directory_path):
+    def compare_file_against_filter(self, directory_path, filepath):
 
         os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
         # TODO: mrsh-v2 would normally need a "/*" character behind dir-path, but this does not work here, slower now

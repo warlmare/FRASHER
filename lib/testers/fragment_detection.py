@@ -81,6 +81,8 @@ class FragmentDetectionTest(BaseTest):
 
                 for x in range(5):
                     scores += [algorithm_instance.compare_file_against_file(
+
+
                                                                             filepath,
                                                                             elem)]
                 score = sum(scores) / len(scores)
@@ -113,7 +115,7 @@ if __name__ == '__main__':
 
     result_list = []
     directory_path = os.path.join(dirname,"../../testdata/testfiles_fragment_detection")
-    file_manipulation.get_random_files(directory_path, 65000, 10)
+    file_manipulation.get_random_files(directory_path, 10000, 10)
 
     for subdir, dirs, files in os.walk(directory_path):
         for file in files:
@@ -122,14 +124,14 @@ if __name__ == '__main__':
 
     results = reduce(pd.DataFrame.add, result_list) / len(result_list)
     print(tabulate(results, headers='keys', tablefmt='psql'))
-    results.to_csv(os.path.join(dirname,'../../results/fragment_detection_65KB_complete.csv'))
-    data = pd.read_csv(os.path.join(dirname,'../../results/fragment_detection_65KB.csv'), index_col=0)
+    results.to_csv(os.path.join(dirname,'../../results/fragment_detection_10KB_complete.csv'))
+    data = pd.read_csv(os.path.join(dirname,'../../results/fragment_detection_10KB_complete.csv'), index_col=0)
     plot1 = data.plot(x="cutoff size %", y=["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"])
     # plot1.invert_xaxis()
     plot1.set_ylabel("Similarity Score")
     plot1.set_xlabel("Cutoff size (%)")
-    plot1.set_title("Fragment Detection Test (65 KB files)")
-    plt.savefig(os.path.join(dirname,"../../results/fragment_detection_65KB.png"), dpi=300)
+    plot1.set_title("Fragment Detection Test (10 KB files)")
+    plt.savefig(os.path.join(dirname,"../../results/fragment_detection_10KB_complete.png"), dpi=300)
     plt.show()
 
 
