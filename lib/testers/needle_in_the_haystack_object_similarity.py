@@ -163,6 +163,10 @@ class NIHTestObjectSimilarity(BaseTest):
         needle_files_path_list = self.create_testdata(testfiles_path, needle_directory_path)
 
         for i in algorithms:
+            # DEBUG
+            print("-" * 20, "DEBUG ENABLED", "-" * 180)
+            print(i)
+
             algorithm_instance = helper.get_algorithm(i)
             filter = algorithm_instance.get_filter(filter_directory_path)
             filter_len = len(filter)
@@ -178,7 +182,6 @@ class NIHTestObjectSimilarity(BaseTest):
 
                 # this is the original name of the file that was manipulated into a needle
                 testfile_name_raw =  needle_filename.partition(needle_number + "_")[2] #re.search(r'(\d+)\D+$', needle_filename).group(1)
-                #print(testfile_name_raw)
 
                 # TODO: this abomination needs to be fixed, mrshcfs
                 if i == "MRSHCF":
@@ -186,7 +189,14 @@ class NIHTestObjectSimilarity(BaseTest):
                 else:
                     results_dict = algorithm_instance.compare_file_against_filter(filter, elem)
 
-                #print(results_dict)
+                # DEBUG
+                print( "NEEDLE NAME: ",
+                      testfile_name_raw,
+                      " NEEDLE SCORE: ",
+                      results_dict[testfile_name_raw],
+                      " HIGHER / EQUAL SCORING FILES: ",
+                      dict((k, v) for k, v in results_dict.items() if v >=  results_dict[testfile_name_raw] ))
+
 
                 # The highest matching values are considered true positives
                 max_keys = [k for k, v in results_dict.items() if v == max(results_dict.values())]
@@ -231,12 +241,21 @@ class NIHTestObjectSimilarity(BaseTest):
 if __name__ == '__main__':
     test_instance = NIHTestObjectSimilarity()
     test_files = "../../testdata/pdf"
+    test_files_list = ["../../testdata/pdf",
+                       "../../testdata/doc",
+                       "../../testdata/gif",
+                       "../../testdata/html",
+                       "../../testdata/jpg",
+                       "../../testdata/ppt",
+                       "../../testdata/text",
+                       "../../testdata/xls"]
+
     filter_dir = "../../../t5"
-    algorithms = ["MRSHV2", "TLSH", "SSDEEP", "MRSHCF"]
+    algorithms = ["FBHASH"]#, "MRSHV2", "SDHASH", "SSDEEP", "TLSH", "MRSHCF"]#, "FBHASH"]
 
     results_list = []
 
-    for _ in range(2):
+    for _ in range(1): #10
         result = test_instance.test(algorithms, test_files , filter_dir)
         results_list += [result]
         #print(tabulate(result, headers='keys', tablefmt='psql'))
@@ -258,3 +277,6 @@ if __name__ == '__main__':
     #print(compare_dict)
     #test_instance.create_testdata("../../testdata/testfiles_alignment_robustness", "blib")
 
+    #fbhash_instance = helper.get_algorithm("FBHASH")
+    #result = fbhash_instance.compare_file_against_filter("../../../t5", "../../../t5/000001.doc")
+    #print(result)

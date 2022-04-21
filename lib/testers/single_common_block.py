@@ -10,6 +10,7 @@ import pandas as pd
 from functools import reduce
 import seaborn as sns
 import os
+import random
 
 dirname = os.path.dirname(__file__)
 
@@ -35,7 +36,7 @@ class SingleCommonBlock(BaseTest):
         filesize = helper.getfilesize(filepath1)
         chunksize = int(filesize / 2)
         filepaths = []
-        chunk_byt = file_manipulation.getrandchunk(chunk_filePath, chunksize)#random_byte_generation(chunksize)
+        chunk_byt = file_manipulation.getrandchunk(chunkfile_path, chunksize)#random_byte_generation(chunksize)
 
 
         while chunksize > 0:
@@ -87,7 +88,7 @@ class SingleCommonBlock(BaseTest):
 
         testfoldername = "single_common_block_correlation"
         testfolderpath = self.create_testrun_folder(testfoldername)
-        filesize = helper.getfilesize(filePath1)
+        filesize = helper.getfilesize(filepath1)
 
         # [[first_file_x,second_file_x],[first_file_y, first_file_y]...]
         file_list = self.create_testdata(filepath1, filepath2, testfolderpath, chunkfile_path)
@@ -95,7 +96,15 @@ class SingleCommonBlock(BaseTest):
 
         df_list = []
 
+        # DEBUG
+        print("-" * 20, "DEBUG ENABLED", "-" * 180)
+
         for i in algorithms:
+
+            # DEBUG
+            print(i)
+
+
             algorithm_instance = helper.get_algorithm(i)
 
             # array that saves our results
@@ -121,6 +130,7 @@ class SingleCommonBlock(BaseTest):
                 testrun_tb.append([filesize, chunksize, fragmentsize_prc, score])
 
             res_df = helper.get_dataframe(testrun_tb)
+            print(tabulate(res_df, headers='keys', tablefmt='psql'))
             df_list += [res_df]
 
         results = reduce(lambda left, right: pd.merge(left, right, on=['filesize (bytes)',
@@ -133,28 +143,45 @@ if __name__ == '__main__':
 
     testinstance = SingleCommonBlock()
 
+    filesize = 2048000 # TODO: if this changes then the dirs need to be emptied in testfiles
 
+    #filePath1 = os.path.join(dirname, "../../testdata/512/test_file1_512")
+    #filePath2 = os.path.join(dirname, "../../testdata/512/test_file2_512")
+    #chunk_filePath = os.path.join(dirname, "../../testdata/testfile1")
 
-    filePath1 = os.path.join(dirname, "../../testdata/512/test_file1_512")
-    filePath2 = os.path.join(dirname, "../../testdata/512/test_file2_512")
-    chunk_filePath = os.path.join(dirname, "../../testdata/testfile1")
+    directory_path = os.path.join(dirname, "../../testdata/testfiles_single_common_block")
+    file_manipulation.get_random_files(directory_path, filesize, 10)
 
-    # for every filesize there needs to be one single_common_block_correlation_test
-    # TODO: needs to be realized for the filesizes = [512,2048,8192] for each filesize 5 runs and the values are averaged
+    directory_path_common_block = os.path.join(dirname, "../../testdata/testfile_common_block")
+    file_manipulation.get_random_files(directory_path_common_block, filesize, 5)
 
-    algorithms = ["SSDEEP","TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"]
-    results = testinstance.test(algorithms, filePath1, filePath2, chunk_filePath)
+    algorithms = ["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"]
+    results_list = []
+
+    for subdir, dirs, files in os.walk(directory_path):
+        it = iter(files)
+        for file1 in it:
+            file2 = next(it)
+
+            filepath1 = directory_path +  "/" + file1
+            filepath2 = directory_path + "/" + file2
+            random_common_block_file = directory_path_common_block + "/"  + random.choice(os.listdir(directory_path_common_block))
+
+            results_head = testinstance.test(algorithms, filepath1, filepath2, random_common_block_file)
+            results_list += [results_head]
+
+    results = reduce(pd.DataFrame.add, results_list) / len(results_list)
     print(tabulate(results, headers='keys', tablefmt='psql'))
-    results.to_csv(os.path.join(dirname, '../../results/single_common_block_512_complete.csv'))
-
-    data = pd.read_csv(os.path.join(dirname, '../../results/single_common_block_512_complete.csv'), index_col=0)
+    results.to_csv(os.path.join(dirname, '../../results/single_common_block_{}_complete.csv'.format(filesize)))
+    print(tabulate(results, headers='keys', tablefmt='psql'))
+    data = pd.read_csv(os.path.join(dirname, '../../results/single_common_block_{}_complete.csv'.format(filesize)), index_col=0)
     data["fragment size (bytes)"] = data["fragment size (bytes)"].div(1000)
-    plot1 = data.plot(x="fragment size (bytes)", y=["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"])
+    plot1 = data.plot(x="fragment size (bytes)", y=algorithms)
     plot1.invert_xaxis()
     plot1.set_ylabel("Similarity Score")
     plot1.set_xlabel("Fragment Size (KB)")
-    plot1.set_title("Single Common Block Test (512)")
-    plt.savefig(os.path.join(dirname, "../../results/single_common_block_test_512_complete.png"), dpi=300)
+    plot1.set_title("Single Common Block Test (2048)")
+    plt.savefig(os.path.join(dirname, "../../results/single_common_block_test_{}_complete.png".format(filesize)), dpi=300)
     plt.show()
 
 

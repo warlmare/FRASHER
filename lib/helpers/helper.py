@@ -336,7 +336,7 @@ def get_file_name(path: str) -> str:
     :return: filename
     '''
     head, tail = ntpath.split(path)
-    return tail or ntpath.basename(head)
+    return tail.strip() or ntpath.basename(head).strip()
 
 
 def get_extensions_in_dir(dir_path)->list:

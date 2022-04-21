@@ -8,7 +8,7 @@ import tlsh
 nltk.download('punkt')
 from simhash import Simhash
 import subprocess
-import re
+from subprocess import call
 import math
 import time
 from  lib.helpers import helper
@@ -182,6 +182,30 @@ class SDHASH(Algorithm):
         output_clean = dict(zip(tokens, string_separated))
         return output_clean
 
+    def get_filter(self, directory_path):
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
+        os.system("./sdhash/sdhash -r ../../../t5/ -o sdhash/sdhash_hashes_t5_corpus")
+
+        return directory_path
+
+    def compare_file_against_filter(self, directory_path, filepath):
+
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
+        os.system("./sdhash/sdhash -r {} -o sdhash/hash_a".format(filepath))
+
+        result_dict = {}
+        cmd = ["./sdhash/sdhash",  "-c", "sdhash/hash_a.sdbf", "sdhash/sdhash_hashes_t5_corpus.sdbf"]
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8')
+        output_itr = iter(proc.splitlines())
+
+        for line in output_itr:
+            # The basename of the file is taken - path
+            filename = helper.get_file_name(str(self.__output_cleaner(line).get("second_file")))
+            similarity_score = int(self.__output_cleaner(line).get("similarity_score"))
+            result_dict[filename] = similarity_score
+
+        return result_dict
+
 class FBHASH(Algorithm):
 
     def compare_file_against_file(self, file_a, file_b):
@@ -220,17 +244,18 @@ class FBHASH(Algorithm):
 
     def get_filter(self, directory_path):
 
-        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
-        os.mkdir("/home/frieder/FRASH2_0/lib/hash_functions/FbHash/fbhash_t5")
+        #TODO: make this shit self sufficient. right now it crashes because fbhash_t5 is already present
+        #os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
+        #os.mkdir("/home/frieder/FRASH2_0/lib/hash_functions/FbHash/fbhash_t5")
 
         # make yourself some coco cause dis shit is gonna take foreva ...
-        for file in os.listdir(directory_path):
-            os.system("java -cp FbHash/bin/ FbHash.Fbhash -fd {}/{} -o FbHash/fbhash_t5/{}".format(directory_path, file, file))
+        #for file in os.listdir(directory_path):
+        #    os.system("java -cp FbHash/bin/ FbHash.Fbhash -fd {}/{} -o FbHash/fbhash_t5/{}".format(directory_path, file, file))
 
         return directory_path
 
 
-    def compare_file_against_filter(self, filepath, directory_path):
+    def compare_file_against_filter(self, directory_path, filepath):
 
         os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
 
@@ -238,21 +263,20 @@ class FBHASH(Algorithm):
 
         result_dict = {}
 
+        # TODO: remove hard coded filter gore, for time reasons we used the windows version to compile the filter used here
         #os.system("java -cp FbHash/bin/ FbHash.Fbhash -fd {}/{} -o FbHash/hash_b".format(directory_path, file))
-        cmd =" -cp "+" FbHash/bin/ "+" FbHash.Fbhash "+" -c "+ str(filepath) + " FbHash/digests_t5.txt"
+        cmd = ["java", "-cp",  "FbHash/bin/",  "FbHash.Fbhash", "-c", "FbHash/hash_a", "FbHash/digests_t5.txt", "-t", "0"]
 
-        subprocess.call(['java'] + cmd.split())#.stdout.decode('utf-8')
-        #proc = subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8')
-        # output_itr = iter(proc.splitlines())
-        #
-        # for line in output_itr:
-        #     filename = str(self.output_cleaner(line).get("second_file"))
-        #     similarity_score = int(self.output_cleaner(line).get("similarity_score"))
-        #     print(similarity_score)
-        #
-        #     result_dict[filename] = similarity_score
-        #
-        # return result_dict
+        #call(cmd)#.stdout.decode('utf-8')
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8')
+        output_itr = iter(proc.splitlines())
+
+        for line in output_itr:
+            filename = helper.get_file_name(str(self.output_cleaner(line).get("first_file")))
+            similarity_score = int(self.output_cleaner(line).get("similarity_score"))
+            result_dict[filename] = similarity_score
+
+        return result_dict
 
 class MRSHV2(Algorithm):
 
@@ -299,14 +323,14 @@ class MRSHV2(Algorithm):
 
         os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
         # TODO: mrsh-v2 would normally need a "/*" character behind dir-path, but this does not work here, slower now
-        cmd = ["./mrsh-v2/mrsh", "-f", "-c", filepath, directory_path]
+        cmd = ["./mrsh-v2/mrsh", "-f", "-c", filepath, directory_path, "-t", " 0"]
         proc = subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8')
         output_itr = iter(proc.splitlines())
 
         result_dict = {}
 
         for line in output_itr:
-            filename = str(self.__output_cleaner(line).get("second_file"))
+            filename = helper.get_file_name(str(self.__output_cleaner(line).get("second_file")))
             sim_score = int(self.__output_cleaner(line).get("similarity_score"))
             result_dict[filename] = sim_score
 
@@ -673,6 +697,7 @@ class MRSHCF(Algorithm):
 
         return filter_placeholder
 
+    # MRSHCF runs in the most precise mode here, not the most efficient.
     def compare_file_against_filter(self, directory_path, filepath):
 
         os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
@@ -760,13 +785,13 @@ if __name__ == '__main__':
     #tlsh_instance.compare_file_against_filter(filter, filePath2)
 
     #mrsh_instance = MRSHCF()
-
     #rest = mrsh_instance.compare_file_against_filter("../../../t5/000001.doc","../../../t5")
     #print(rest)
 
-    #sdhash_instance = SDHASH()
-    #result = sdhash_instance.compare_file_against_file(filePath2, chunk_filePath)
-    #print(result)
+    mrshv2_instance = MRSHV2()
+    mrshv2_instance.get_filter("../../../t5")
+    result = mrshv2_instance.compare_file_against_filter("../../../t5/000001.doc","../../../t5")
+    print(result)
 
     #os.system("java -cp FbHash/bin/ FbHash.Fbhash") # -fd {} -o Fbhash/hash_a".format(filePath1))
 
@@ -775,13 +800,8 @@ if __name__ == '__main__':
     #result = fbhash_instance.compare_file_against_file(filePath2, filePath2)
     #print(result)
 
-    fbhash_instance = FBHASH()
-    #result2 = mrsh_v2_instance.compare_file_against_file(filePath2,filePath2)
-    #print(result2)
-
-    #rest = fbhash_instance.compare_file_against_filter("../../../t5/000001.doc","../../../t5")
-    #print(rest)
-    fbhash_instance.compare_file_against_filter(chunk_filePath,"../../../t5")
-
+    #fbhash_instance = FBHASH()
+    #result = fbhash_instance.compare_file_against_filter("../../../t5/000001.doc","../../../t5")
+    #print(result)
 
 

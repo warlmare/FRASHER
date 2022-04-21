@@ -101,10 +101,11 @@ class FragmentDetectionTest(BaseTest):
 
 
 
+
 if __name__ == '__main__':
     testinstance = FragmentDetectionTest()
 
-    testfile = os.path.join(dirname,"../../testdata/testfiles_alignment_robustness/30000_8")
+    #testfile = os.path.join(dirname,"../../testdata/testfiles_alignment_robustness/30000_8")
 
     #testrun = testinstance.test("tlsh", "random", testfile,5)
     #print(tabulate(testrun)) # TODO: this needs to be outsourced into a log module
@@ -117,7 +118,8 @@ if __name__ == '__main__':
 
     for subdir, dirs, files in os.walk(directory_path):
         for file in files:
-            results_head = testinstance.test_debug(algorithms, "random", testfile)
+            filepath = directory_path + "/" + file
+            results_head = testinstance.test_debug(algorithms, "random", filepath)
             result_list += [results_head]
 
     results = reduce(pd.DataFrame.add, result_list) / len(result_list)
