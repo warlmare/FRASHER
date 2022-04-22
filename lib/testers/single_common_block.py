@@ -96,13 +96,9 @@ class SingleCommonBlock(BaseTest):
 
         df_list = []
 
-        # DEBUG
-        print("-" * 20, "DEBUG ENABLED", "-" * 180)
 
         for i in algorithms:
 
-            # DEBUG
-            print(i)
 
 
             algorithm_instance = helper.get_algorithm(i)
@@ -130,7 +126,13 @@ class SingleCommonBlock(BaseTest):
                 testrun_tb.append([filesize, chunksize, fragmentsize_prc, score])
 
             res_df = helper.get_dataframe(testrun_tb)
-            print(tabulate(res_df, headers='keys', tablefmt='psql'))
+
+            # DEBUG
+            file_object = open(os.path.join(dirname,'../../results/log'), 'a')
+            file_object.write(tabulate(res_df, headers='keys', tablefmt='psql'))
+            file_object.close()
+
+            #print(tabulate(res_df, headers='keys', tablefmt='psql'))
             df_list += [res_df]
 
         results = reduce(lambda left, right: pd.merge(left, right, on=['filesize (bytes)',
@@ -155,8 +157,16 @@ if __name__ == '__main__':
     directory_path_common_block = os.path.join(dirname, "../../testdata/testfile_common_block")
     file_manipulation.get_random_files(directory_path_common_block, filesize, 5)
 
-    algorithms = ["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"]
+    algorithms = ["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH"]#, "FBHASH"]
     results_list = []
+
+
+    # DEBUG
+    file_object = open(os.path.join(dirname,'../../results/log'), 'a')
+    file_object.write("---SINGLE-COMMON-BLOCK-TEST----DEBUG ENABLED----2048000-------------------")
+    file_object.write("---ALGROITHMS:-SSDEEP-TLSH-MRSHCF-MRSHV2-SDHASH]--------------------------")
+    file_object.close()
+
 
     for subdir, dirs, files in os.walk(directory_path):
         it = iter(files)
@@ -168,12 +178,20 @@ if __name__ == '__main__':
             random_common_block_file = directory_path_common_block + "/"  + random.choice(os.listdir(directory_path_common_block))
 
             results_head = testinstance.test(algorithms, filepath1, filepath2, random_common_block_file)
+
+            # DEBUG
+            file_object = open(os.path.join(dirname,'../../results/log'), 'a')
+            file_object.write(("-------------------------------INTERMEDIATE RESULTS------------------------------"))
+            file_object.write(tabulate(results_head, headers='keys', tablefmt='psql'))
+            file_object.write(("-------------------------------INTERMEDIATE RESULTS------------------------------"))
+            file_object.close()
+
+
             results_list += [results_head]
 
     results = reduce(pd.DataFrame.add, results_list) / len(results_list)
-    print(tabulate(results, headers='keys', tablefmt='psql'))
+    #print(tabulate(results, headers='keys', tablefmt='psql'))
     results.to_csv(os.path.join(dirname, '../../results/single_common_block_{}_complete.csv'.format(filesize)))
-    print(tabulate(results, headers='keys', tablefmt='psql'))
     data = pd.read_csv(os.path.join(dirname, '../../results/single_common_block_{}_complete.csv'.format(filesize)), index_col=0)
     data["fragment size (bytes)"] = data["fragment size (bytes)"].div(1000)
     plot1 = data.plot(x="fragment size (bytes)", y=algorithms)
