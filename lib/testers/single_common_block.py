@@ -145,61 +145,61 @@ if __name__ == '__main__':
 
     testinstance = SingleCommonBlock()
 
-    filesize = 2048000 # TODO: if this changes then the dirs need to be emptied in testfiles
+    # filesize = 512000 # TODO: if this changes then the dirs need to be emptied in testfiles
+    #
+    # #filePath1 = os.path.join(dirname, "../../testdata/512/test_file1_512")
+    # #filePath2 = os.path.join(dirname, "../../testdata/512/test_file2_512")
+    # #chunk_filePath = os.path.join(dirname, "../../testdata/testfile1")
+    #
+    # directory_path = os.path.join(dirname, "../../testdata/testfiles_single_common_block")
+    # file_manipulation.get_random_files(directory_path, filesize, 20)
+    #
+    # directory_path_common_block = os.path.join(dirname, "../../testdata/testfile_common_block")
+    # file_manipulation.get_random_files(directory_path_common_block, filesize, 10)
+    #
+    algorithms = ["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"]
+    # results_list = []
+    #
+    #
+    # # DEBUG
+    # file_object = open(os.path.join(dirname,'../../results/log'), 'a')
+    # file_object.write("---SINGLE-COMMON-BLOCK-TEST----DEBUG ENABLED-----512000-------------------")
+    # file_object.write("---ALGROITHMS:-SSDEEP-TLSH-MRSHCF-MRSHV2-SDHASH-FBHASH]--------------------------")
+    # file_object.close()
+    #
+    #
+    # for subdir, dirs, files in os.walk(directory_path):
+    #     it = iter(files)
+    #     for file1 in it:
+    #         file2 = next(it)
+    #
+    #         filepath1 = directory_path +  "/" + file1
+    #         filepath2 = directory_path + "/" + file2
+    #         random_common_block_file = directory_path_common_block + "/"  + random.choice(os.listdir(directory_path_common_block))
+    #
+    #         results_head = testinstance.test(algorithms, filepath1, filepath2, random_common_block_file)
+    #
+    #         # DEBUG
+    #         file_object = open(os.path.join(dirname,'../../results/log'), 'a')
+    #         file_object.write(("-------------------------------INTERMEDIATE RESULTS------------------------------"))
+    #         file_object.write(tabulate(results_head, headers='keys', tablefmt='psql'))
+    #         file_object.write(("-------------------------------INTERMEDIATE RESULTS------------------------------"))
+    #         file_object.close()
+    #
+    #
+    #         results_list += [results_head]
 
-    #filePath1 = os.path.join(dirname, "../../testdata/512/test_file1_512")
-    #filePath2 = os.path.join(dirname, "../../testdata/512/test_file2_512")
-    #chunk_filePath = os.path.join(dirname, "../../testdata/testfile1")
-
-    directory_path = os.path.join(dirname, "../../testdata/testfiles_single_common_block")
-    file_manipulation.get_random_files(directory_path, filesize, 10)
-
-    directory_path_common_block = os.path.join(dirname, "../../testdata/testfile_common_block")
-    file_manipulation.get_random_files(directory_path_common_block, filesize, 5)
-
-    algorithms = ["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH"]#, "FBHASH"]
-    results_list = []
-
-
-    # DEBUG
-    file_object = open(os.path.join(dirname,'../../results/log'), 'a')
-    file_object.write("---SINGLE-COMMON-BLOCK-TEST----DEBUG ENABLED----2048000-------------------")
-    file_object.write("---ALGROITHMS:-SSDEEP-TLSH-MRSHCF-MRSHV2-SDHASH]--------------------------")
-    file_object.close()
-
-
-    for subdir, dirs, files in os.walk(directory_path):
-        it = iter(files)
-        for file1 in it:
-            file2 = next(it)
-
-            filepath1 = directory_path +  "/" + file1
-            filepath2 = directory_path + "/" + file2
-            random_common_block_file = directory_path_common_block + "/"  + random.choice(os.listdir(directory_path_common_block))
-
-            results_head = testinstance.test(algorithms, filepath1, filepath2, random_common_block_file)
-
-            # DEBUG
-            file_object = open(os.path.join(dirname,'../../results/log'), 'a')
-            file_object.write(("-------------------------------INTERMEDIATE RESULTS------------------------------"))
-            file_object.write(tabulate(results_head, headers='keys', tablefmt='psql'))
-            file_object.write(("-------------------------------INTERMEDIATE RESULTS------------------------------"))
-            file_object.close()
-
-
-            results_list += [results_head]
-
-    results = reduce(pd.DataFrame.add, results_list) / len(results_list)
+    #results = reduce(pd.DataFrame.add, results_list) / len(results_list)
     #print(tabulate(results, headers='keys', tablefmt='psql'))
-    results.to_csv(os.path.join(dirname, '../../results/single_common_block_{}_complete.csv'.format(filesize)))
-    data = pd.read_csv(os.path.join(dirname, '../../results/single_common_block_{}_complete.csv'.format(filesize)), index_col=0)
+    #results.to_csv(os.path.join(dirname, '../../results/single_common_block_512_final.csv'.format(filesize)))
+    data = pd.read_csv(os.path.join(dirname, '../../results/single_common_block_512_all_algos.csv'), index_col=0)
     data["fragment size (bytes)"] = data["fragment size (bytes)"].div(1000)
     plot1 = data.plot(x="fragment size (bytes)", y=algorithms)
     plot1.invert_xaxis()
     plot1.set_ylabel("Similarity Score")
     plot1.set_xlabel("Fragment Size (KB)")
-    plot1.set_title("Single Common Block Test (2048)")
-    plt.savefig(os.path.join(dirname, "../../results/single_common_block_test_{}_complete.png".format(filesize)), dpi=300)
+    plot1.set_title("Single Common Block Test (512 KB)")
+    plt.savefig(os.path.join(dirname, "../../results/single_common_block_test_512_all_algos.png"), dpi=300)
     plt.show()
 
 

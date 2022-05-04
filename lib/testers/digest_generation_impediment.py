@@ -1,4 +1,4 @@
-from base_test import BaseTest
+from lib.testers.base_test import BaseTest
 from lib.helpers import file_manipulation
 from lib.helpers import helper
 from lib.hash_functions import algorithms
@@ -35,13 +35,14 @@ class DigestGenerationImpediment(BaseTest):
         # 100 ascii chars
         alphabet = string.printable # "".join(chr(i) for i in range(128)) #
         body_chars = alphabet[0:alphabet_length]
+        print(body_chars)
         sequence = ''
 
         while len(set(sequence)) is not len(body_chars):
             sequence = ''.join(random.SystemRandom().choice(body_chars) for _ in range(sequence_length))
 
 
-        seq_bytes = sequence.encode("utf-8")
+        seq_bytes = sequence #.encode("utf-8")
         return seq_bytes
 
     def get_ran_text(self, text_len, dict_size):
@@ -68,27 +69,33 @@ class DigestGenerationImpediment(BaseTest):
         :return:
         '''
 
-        sequence_length = 10000
+        sequence_length = 2900
+
         df_list = []
+        sequence_a = os.path.join(dirname,"/home/frieder/FRASH2_0/lib/testers/sequence_a")
+        sequence_b = os.path.join(dirname, "/home/frieder/FRASH2_0/lib/testers/sequence_b")
 
         for i in algorithms:
             algorithm_instance = helper.get_algorithm(i)
             testrun_tb = [["variance",i]]
 
             for variance in range(100):
-                sequence_a = self.get_ran_seq(sequence_length,variance)# get_ran_text(sequence_length,variance)#
-                f = open("./sequence_a", "wb")
-                f.write(sequence_a)
-                f.close()
+                sequence_a_content = self.get_ran_seq(sequence_length,variance)# get_ran_text(sequence_length,variance)#
+                with open(sequence_a, "w") as text_file:
+                    text_file.write(sequence_a_content)
+                text_file.close()
 
-                sequence_b = self.get_ran_seq(sequence_length,variance)#get_ran_text(sequence_length,variance)##
-                f = open("./sequence_b", "wb")
-                f.write(sequence_b)
-                f.close()
+                print(helper.getfilesize(sequence_a))
+
+                sequence_b_content = self.get_ran_seq(sequence_length,variance)#get_ran_text(sequence_length,variance)##
+                with open(sequence_b, "w") as text_file:
+                    text_file.write(sequence_b_content)
+                text_file.close()
 
                 try:
-                    sim_score = algorithm_instance.compare_file_against_file("/home/frieder/FRASH2_0/lib/testers/sequence_a",
-                                                                             "/home/frieder/FRASH2_0/lib/testers/sequence_a")
+                    sim_score = algorithm_instance.compare_file_against_file(sequence_a,
+                                                                             sequence_a)
+                    print(sim_score)
                 # if the sim_score is anything other than 0 this is considered a sucess (1) otherwise (0)
                 except ValueError as error:
                     testrun_tb.append([variance,"0"])
@@ -107,9 +114,10 @@ class DigestGenerationImpediment(BaseTest):
         return results
 
 if __name__ == '__main__':
-    algorithms = ["MRSHCF", "TLSH"]#, "MRSHV2", "SDHASH", "FBHASH", "SSDEEP"]
+    algorithms =  ["MRSHV2"]#, "SDHASH"]#, "FBHASH"] #["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH", "FBHASH"]
 
     testinstance = DigestGenerationImpediment()
+    #algorithm_instance = helper.get_algorithm("SDHASH")
     results = testinstance.test(algorithms)
     print(tabulate(results, headers='keys', tablefmt='psql'))
     results.to_csv(os.path.join(dirname, '../../results/digest_generation_impediment.csv'))

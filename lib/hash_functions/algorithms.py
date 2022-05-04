@@ -154,17 +154,19 @@ class SDHASH(Algorithm):
         :param file_b: filepath
         :return: similarity score : int
         '''
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
 
         os.system("./sdhash/sdhash -r {} -o sdhash/hash_a".format(file_a))
         os.system("./sdhash/sdhash -r {} -o sdhash/hash_b".format(file_b))
 
-        result = subprocess.getoutput("./sdhash/sdhash -c sdhash/hash_b.sdbf sdhash/hash_a.sdbf")
+        result = subprocess.getoutput("./sdhash/sdhash -c sdhash/hash_b.sdbf sdhash/hash_a.sdbf -t 0")
 
         try:
             comparison_output = self.__output_cleaner(result)
             similarity_score = int(comparison_output.get("similarity_score"))
         except TypeError:
             similarity_score = 0
+
 
         os.remove("sdhash/hash_a.sdbf")
         os.remove("sdhash/hash_b.sdbf")
@@ -184,7 +186,7 @@ class SDHASH(Algorithm):
 
     def get_filter(self, directory_path):
         os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
-        os.system("./sdhash/sdhash -r ../../../t5/ -o sdhash/sdhash_hashes_t5_corpus")
+        os.system("./sdhash/sdhash -r ../../../t5_extended_corpus/ -o sdhash/sdhash_hashes_t5_extended_corpus")
 
         return directory_path
 
@@ -194,7 +196,8 @@ class SDHASH(Algorithm):
         os.system("./sdhash/sdhash -r {} -o sdhash/hash_a".format(filepath))
 
         result_dict = {}
-        cmd = ["./sdhash/sdhash",  "-c", "sdhash/hash_a.sdbf", "sdhash/sdhash_hashes_t5_corpus.sdbf"]
+        #TODO: This filter file is hardcoded for time reasons, needs to be made dynamic
+        cmd = ["./sdhash/sdhash",  "-c", "sdhash/hash_a.sdbf", "sdhash/sdhash_hashes_t5_extended_corpus.sdbf", "-t", "0"]
         proc = subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8')
         output_itr = iter(proc.splitlines())
 
@@ -215,12 +218,13 @@ class FBHASH(Algorithm):
         :param file_b: filepath
         :return: similarity score : int
         '''
-
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
+        
         #TODO: right now one cannot run multiple instances in paralell since it overrides the hashes.
         os.system("java -cp FbHash/bin/ FbHash.Fbhash -fd {} -o FbHash/hash_a".format(file_a))
         os.system("java -cp FbHash/bin/ FbHash.Fbhash -fd {} -o FbHash/hash_b".format(file_b))
 
-        result = subprocess.getoutput("java -cp FbHash/bin/ FbHash.Fbhash -c FbHash/hash_a FbHash/hash_b")
+        result = subprocess.getoutput("java -cp FbHash/bin/ FbHash.Fbhash -c FbHash/hash_a FbHash/hash_b -t 0")
 
         try:
             comparison_output = self.output_cleaner(result)
@@ -287,8 +291,9 @@ class MRSHV2(Algorithm):
         :param file_b: filepath
         :return: similarity score : int
         '''
+        os.chdir("/home/frieder/FRASH2_0/lib/hash_functions")
 
-        result = subprocess.getoutput("./mrsh-v2/mrsh -f -c {} {}".format(file_a, file_b))
+        result = subprocess.getoutput("./mrsh-v2/mrsh -f -c {} {} -t 0".format(file_a, file_b))
 
         try:
             comparison_output = self.__output_cleaner(result)

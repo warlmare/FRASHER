@@ -3,6 +3,8 @@ import random
 from lib.helpers import helper
 
 
+dirname = os.path.dirname(__file__)
+
 # TODO: rename chunk into block
 
 # TODO: return-type annotation missing.
@@ -270,7 +272,7 @@ def front_side_cutting_byte(bytes_obj, percentage):
     return bytes_obj[cutoff:]
 
 
-
+# TODO: make get
 def random_byte_generation(size):
     '''generates a random set of bytes
 
@@ -281,6 +283,9 @@ def random_byte_generation(size):
 
     random_bytes = random.randbytes(size)
     return random_bytes
+
+
+
 
 def get_random_files(directoy_path, size, file_ctr):
     ''' creates file_ctr amount of files of size (size)
@@ -480,9 +485,11 @@ def get_rand_chunk_of_ext(ext, chunk_size):
     :return:
     '''
     # chunkfile is the file that will be inserted
-    for file in os.listdir("../../testdata/filetype_testfiles"):
+
+    ext_directory = os.path.join(dirname, "../../testdata/filetype_testfiles")
+    for file in os.listdir(ext_directory):
         if file.endswith(ext):
-            chunkfile_path = os.path.join("../../testdata/filetype_testfiles", file)
+            chunkfile_path = os.path.join(ext_directory, file)
 
     rand_chunk_ext = getrandchunk(chunkfile_path,chunk_size)
     return rand_chunk_ext

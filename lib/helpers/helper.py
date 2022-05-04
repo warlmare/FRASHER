@@ -35,6 +35,18 @@ def get_algorithm(algorithm: str):
     instance = class_()
     return instance
 
+def write_bytes_to_file(filepath, bytes_obj):
+    ''' writes bytes to a specified file
+
+    :param filepath:
+    :param bytes_obj:
+    :return:
+    '''
+
+    f = open(filepath, "wb")
+    f.write(bytes_obj)
+    f.close()
+
 def is_overlaping(a, b) -> bool:
     '''helper function
 

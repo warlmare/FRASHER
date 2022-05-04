@@ -1,7 +1,7 @@
 import pprint
 
 import lib.hash_functions.algorithms
-from base_test import BaseTest
+from lib.testers.base_test import BaseTest
 from lib.helpers import helper
 from lib.helpers import file_manipulation
 from lib.hash_functions import algorithms
@@ -13,6 +13,8 @@ import re
 import zlib, sys
 from random import shuffle
 
+dirname = os.path.dirname(__file__)
+
 class NIHTestObjectSimilarity(BaseTest):
 
     def create_testdata(self, directory_path, target_path):
@@ -22,6 +24,9 @@ class NIHTestObjectSimilarity(BaseTest):
         :param target_path:
         :return: filepaths: list of filepaths
         '''
+
+        directory_path = os.path.join(dirname, directory_path)
+        target_path = os.path.join(dirname, target_path)
 
         filepaths = []
         needle_paths = []
@@ -99,9 +104,9 @@ class NIHTestObjectSimilarity(BaseTest):
         chunksize = int(needle_size / 2)
 
         # we need a file of the same filetype from the testfiles.
-        for file in os.listdir("../../testdata/filetype_testfiles"):
+        for file in os.listdir(os.path.join(dirname,"../../testdata/filetype_testfiles")):
             if file.endswith(file_extension):
-                chunkfile_path = os.path.join("../../testdata/filetype_testfiles", file)
+                chunkfile_path = os.path.join(os.path.join(dirname,"../../testdata/filetype_testfiles"), file)
 
         seventh_needle, eighth_needle = file_manipulation.common_block_insertion(filepaths[6],
                                                                                filepaths[6],
@@ -164,8 +169,8 @@ class NIHTestObjectSimilarity(BaseTest):
 
         for i in algorithms:
             # DEBUG
-            print("-" * 20, "DEBUG ENABLED", "-" * 180)
-            print(i)
+            #print("-" * 20, "DEBUG ENABLED", "-" * 180)
+            #print(i)
 
             algorithm_instance = helper.get_algorithm(i)
             filter = algorithm_instance.get_filter(filter_directory_path)
@@ -190,12 +195,12 @@ class NIHTestObjectSimilarity(BaseTest):
                     results_dict = algorithm_instance.compare_file_against_filter(filter, elem)
 
                 # DEBUG
-                print( "NEEDLE NAME: ",
-                      testfile_name_raw,
-                      " NEEDLE SCORE: ",
-                      results_dict[testfile_name_raw],
-                      " HIGHER / EQUAL SCORING FILES: ",
-                      dict((k, v) for k, v in results_dict.items() if v >=  results_dict[testfile_name_raw] ))
+                #print( "NEEDLE NAME: ",
+                #      testfile_name_raw,
+                #      " NEEDLE SCORE: ",
+                #      results_dict[testfile_name_raw],
+                #      " HIGHER / EQUAL SCORING FILES: ",
+                #      dict((k, v) for k, v in results_dict.items() if v >=  results_dict[testfile_name_raw] ))
 
 
                 # The highest matching values are considered true positives
@@ -240,29 +245,41 @@ class NIHTestObjectSimilarity(BaseTest):
 
 if __name__ == '__main__':
     test_instance = NIHTestObjectSimilarity()
-    test_files = "../../testdata/pdf"
-    test_files_list = ["../../testdata/pdf",
-                       "../../testdata/doc",
-                       "../../testdata/gif",
-                       "../../testdata/html",
+    #test_files = "../../testdata/pdf"
+    test_files_list = [#"../../testdata/pdf",
+                       #"../../testdata/doc",
+                       #"../../testdata/gif",
+                       #"../../testdata/html",
                        "../../testdata/jpg",
                        "../../testdata/ppt",
                        "../../testdata/text",
-                       "../../testdata/xls"]
+                       "../../testdata/xls",
+                       "../../testdata/xlsx",
+                       "../../testdata/docx",
+                       "../../testdata/pptx"]
 
-    filter_dir = "../../../t5"
-    algorithms = ["FBHASH"]#, "MRSHV2", "SDHASH", "SSDEEP", "TLSH", "MRSHCF"]#, "FBHASH"]
+    filter_dir = os.path.join(dirname,"../../../t5_extended_corpus/t5_extended_corpus")
+    algorithms = ["SSDEEP", "TLSH", "MRSHCF", "MRSHV2", "SDHASH"]#, "FBHASH"]
 
-    results_list = []
+    for filetype in test_files_list:
+        results_list = []
+        for _ in range(10):
 
-    for _ in range(1): #10
-        result = test_instance.test(algorithms, test_files , filter_dir)
-        results_list += [result]
-        #print(tabulate(result, headers='keys', tablefmt='psql'))
+            result = test_instance.test(algorithms, os.path.join(dirname,filetype), filter_dir)
+            results_list += [result]
 
-    cc = pd.concat(results_list)
-    gp = cc.groupby(["needle type"])[algorithms].sum()
-    print(tabulate(gp, headers='keys', tablefmt='psql'))
+
+            print(tabulate(result, headers='keys', tablefmt='psql'))
+
+        cc = pd.concat(results_list)
+        gp = cc.groupby(["needle type"])[algorithms].sum()
+        #print(tabulate(gp, headers='keys', tablefmt='psql'))
+
+        file_object = open(os.path.join(dirname,'../../results/log'), 'a')
+        file_object.write(("\n-------------------------------{}------------------------------\n".format(filetype)))
+        file_object.write(tabulate(gp, headers='keys', tablefmt='psql'))
+        file_object.close()
+
 
     
     
