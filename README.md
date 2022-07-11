@@ -1,5 +1,34 @@
 # FRASHER
 
+## COMING SOON
+
+This is the official git repository for [_FRASHER_](https://dfrws.org/presentation/frasher-a-framework-for-automated-evaluation-of-similarity-hashing/) - A Framework for Automated Evaluation of Similarity Hashing. The complete Framework will be uploaded in the coming weeks after the DFRWS US 2022 Conference. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 This is a rework of FRASH (FRamework to test Algorithms of Similarity Hashing) as it was described in Breitinger et al. 
 [_FRASH: A framework to test algorithms of similarity hashing_](https://www.sciencedirect.com/science/article/pii/S1742287613000522). The framework allows the targeted manipulation of files 
 and the evaluation of algorithms through these. The Framework is implemented in Python 3.9. For optimal performance `Ubuntu 21.04` is recommended, however the framework itself and the algorithms `Ssdeep` and `TLSH` are useable under Windows. 
